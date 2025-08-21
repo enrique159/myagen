@@ -1,0 +1,21 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes:
+    light --default,
+    // dark --prefersdark;
+}
+
+@theme {
+  --font-primary: system-ui, Helvetica, Arial, sans-serif;
+  --color-primary: #646cff;
+  --color-secondary: #646cff;
+  --color-success: #22c55d;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #646cff;
+}
+
+.required::after {
+  content: ' *';
+  color: rgb(227, 88, 88);
+}
