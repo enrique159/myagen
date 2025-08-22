@@ -1,13 +1,17 @@
 import { useAppStore } from '@/stores/appStore'
 import { storeToRefs } from 'pinia'
 
+
 export const useApp = () => {
   const appStore = useAppStore()
-  const { theme } = storeToRefs(appStore)
-  const { toggleTheme } = appStore
+  const { validated } = storeToRefs(appStore)
+
+  const setValidated = (val: boolean) => {
+    appStore.setValidated(val)
+  }
 
   return {
-    theme,
-    toggleTheme,
+    validated,
+    setValidated,
   }
 }

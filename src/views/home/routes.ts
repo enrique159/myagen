@@ -2,7 +2,7 @@ import HomeView from './HomeView.vue'
 
 export default [
   {
-    path: '/',
+    path: '',
     name: 'Home',
     component: HomeView,
   },

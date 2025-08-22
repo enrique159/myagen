@@ -11,8 +11,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@pablotheblink/flashyjs": "^1.0.5",
     "@tailwindcss/vite": "^4.1.12",
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.4",
+    "@vuepic/vue-datepicker": "^11.0.2",
     "@vueuse/core": "^13.7.0",
+    "animate.css": "^4.1.1",
+    "axios": "^1.11.0",
+    "dayjs": "^1.11.13",
+    "maska": "^3.2.0",
     "pinia": "^3.0.3",
     "tailwindcss": "^4.1.12",
     "vue": "3.5.19",
