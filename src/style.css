@@ -5,6 +5,20 @@
     dark --prefersdark;
 }
 
+@plugin "daisyui/theme" {
+  name: "light";
+  --color-base-100: #FFFFFF;
+  --color-base-200: #F0F1F4;
+  --color-base-300: #B0B7D1;
+}
+
+@plugin "daisyui/theme" {
+  name: "dark";
+  --color-base-100: #111827;
+  --color-base-200: #1F2937;
+  --color-base-300: #B0B7D1;
+}
+
 @theme {
   --font-primary: system-ui, Helvetica, Arial, sans-serif;
   --color-primary: #646cff;
@@ -19,3 +33,9 @@
   content: ' *';
   color: rgb(227, 88, 88);
 }
+
+body {
+  @apply bg-base-200;
+}
+
+@import "./styles/calendar.css";

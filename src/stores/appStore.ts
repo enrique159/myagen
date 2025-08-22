@@ -4,15 +4,18 @@ import { ref } from 'vue'
 
 export const useAppStore = defineStore('app', () => {
   const theme = useLocalStorage('theme', 'light')
-  
   function toggleTheme() {
     theme.value = theme.value === 'light' ? 'dark' : 'light'
   }
 
   const validated = ref(false)
-
   const setValidated = (val: boolean) => {
     validated.value = val
+  }
+
+  const dateCalendar = ref(new Date())
+  const setDateCalendar = (val: Date) => {
+    dateCalendar.value = val
   }
 
 
@@ -21,5 +24,7 @@ export const useAppStore = defineStore('app', () => {
     toggleTheme,
     validated,
     setValidated,
+    dateCalendar,
+    setDateCalendar,
   }
 })
