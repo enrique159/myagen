@@ -44,23 +44,10 @@ export const useElementStore = defineStore('element', () => {
     )
   }
 
-  const addTagToElement = (elementId: string, tag: Tag) => {
+  const setTagsElement = (elementId: string, tags: Tag[]) => {
     elements.value = elements.value.map((element) => {
       if (element.id === elementId) {
-        const tagExists = element.tags.some(
-          (existingTag) => existingTag.id === tag.id,
-        )
-        if (tagExists) return element
-        element.tags.push(tag)
-      }
-      return element
-    })
-  }
-
-  const removeTagFromElement = (elementId: string, tagId: string) => {
-    elements.value = elements.value.map((element) => {
-      if (element.id === elementId) {
-        element.tags = element.tags.filter((tag) => tag.id !== tagId)
+        element.tags = tags
       }
       return element
     })
@@ -111,9 +98,10 @@ export const useElementStore = defineStore('element', () => {
     return action
   }
 
-  const addTags = async (elementId: string, tagIds: string[]) => {
+  const addTagsToElement = async (elementId: string, tagIds: string[]) => {
     const action = await addTagsUseCase(elementId, tagIds)
       .then((response) => {
+        setTagsElement(elementId, response.data.tags)
         return response
       })
       .catch((error) => {
@@ -122,9 +110,10 @@ export const useElementStore = defineStore('element', () => {
     return action
   }
 
-  const removeTags = async (elementId: string, tagIds: string[]) => {
+  const removeTagsFromElement = async (elementId: string, tagIds: string[]) => {
     const action = await removeTagsUseCase(elementId, tagIds)
       .then((response) => {
+        setTagsElement(elementId, response.data.tags)
         return response
       })
       .catch((error) => {
@@ -185,14 +174,12 @@ export const useElementStore = defineStore('element', () => {
     elements,
     addElement,
     removeElement,
-    addTagToElement,
-    removeTagFromElement,
+    addTagsToElement,
+    removeTagsFromElement,
     createElement,
     updateElement,
     getElements,
     deleteElement,
-    addTags,
-    removeTags,
     tags,
     createTag,
     getTags,

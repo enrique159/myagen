@@ -74,7 +74,7 @@
                   color: tag.color,
                   '--hover-bg-color': tag.color + '80',
                 }"
-                @click="removeTagFromElement(element.id, tag.id)"
+                @click="removeTagsFromElement(element.id, [tag.id])"
               >
                 <IconX :size="12" />
               </button>
@@ -99,7 +99,7 @@
                 <li
                   v-for="tag in tags"
                   :key="tag.id"
-                  @click="addTagToElement(element.id, tag)"
+                  @click="addTagsToElement(element.id, [tag.id])"
                 >
                   <div class="flex items-center gap-2">
                     <div
@@ -226,6 +226,7 @@ import { useElement } from '@/composables/useElement'
 import { useProject } from '@/composables/useProject'
 import { handleFetchErrors } from '@/utils/handleFetchErrors'
 import { PROJECT_COLORS } from '@/constants/colors'
+import type { ICreateTagPayload } from '@/app/modules/tags/domain/tag'
 
 const { dateCalendar } = useApp()
 
@@ -239,8 +240,8 @@ const {
   getElements,
   createElement,
   deleteElement,
-  addTagToElement,
-  removeTagFromElement,
+  addTagsToElement,
+  removeTagsFromElement,
   updateElement,
   tags,
   getTags,
@@ -369,10 +370,9 @@ const getColorName = (colorValue: string): string => {
 }
 
 const submitNewTag = async () => {
-  const payload = {
+  const payload: ICreateTagPayload = {
     name: newTag.value.name,
     color: newTag.value.color,
-    projectId: currentProject.value?.id,
   }
   await createTag(payload)
     .catch((error) => {

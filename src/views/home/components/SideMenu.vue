@@ -142,7 +142,7 @@
           tabindex="0"
           class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full mt-1"
         >
-          <div class="grid grid-cols-4 gap-2 p-2">
+          <div class="grid grid-cols-8 gap-2 p-2">
             <div
               v-for="color in projectColors"
               :key="color.value"
@@ -203,7 +203,7 @@
       </div>
 
       <button
-        class="btn btn-primary"
+        class="btn btn-primary btn-soft"
         @click="createNewProject"
         :disabled="isLoadingCreateProject"
       >

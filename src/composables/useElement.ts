@@ -1,5 +1,5 @@
 import type { ICreateElementPayload, IGetElementsParams, IUpdateElementPayload } from '@/app/modules/elements/domain/element'
-import type { ICreateTagPayload, IUpdateTagPayload, Tag } from '@/app/modules/tags/domain/tag'
+import type { ICreateTagPayload, IUpdateTagPayload } from '@/app/modules/tags/domain/tag'
 import { useElementStore } from '@/stores/elementStore'
 import { storeToRefs } from 'pinia'
 
@@ -12,12 +12,12 @@ export const useElement = () => {
     return elementStore.removeElement(elementId)
   }
 
-  function addTagToElement(elementId: string, tag: Tag) {
-    return elementStore.addTagToElement(elementId, tag)
+  function addTagsToElement(elementId: string, tagIds: string[]) {
+    return elementStore.addTagsToElement(elementId, tagIds)
   }
 
-  function removeTagFromElement(elementId: string, tagId: string) {
-    return elementStore.removeTagFromElement(elementId, tagId)
+  function removeTagsFromElement(elementId: string, tagIds: string[]) {
+    return elementStore.removeTagsFromElement(elementId, tagIds)
   }
 
   // Actions
@@ -35,14 +35,6 @@ export const useElement = () => {
 
   function deleteElement(elementId: string) {
     return elementStore.deleteElement(elementId)
-  }
-
-  function addTags(elementId: string, tagIds: string[]) {
-    return elementStore.addTags(elementId, tagIds)
-  }
-
-  function removeTags(elementId: string, tagIds: string[]) {
-    return elementStore.removeTags(elementId, tagIds)
   }
 
   // TAGS
@@ -65,14 +57,12 @@ export const useElement = () => {
   return {
     elements,
     removeElement,
-    addTagToElement,
-    removeTagFromElement,
+    addTagsToElement,
+    removeTagsFromElement,
     createElement,
     updateElement,
     getElements,
     deleteElement,
-    addTags,
-    removeTags,
     tags,
     createTag,
     getTags,

@@ -100,6 +100,7 @@ export default class Http implements IHttp {
       const response = await this.axios.delete(url, {
         params: payload?.params,
         headers: this.requestHeaders(payload?.headers ?? {}),
+        data: payload?.data ?? {},
         timeout: payload?.timeout ?? TIME_OUT,
         withCredentials: payload?.auth || WITH_CREDENTIALS,
       })
