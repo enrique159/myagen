@@ -47,7 +47,7 @@
       </button>
     </div>
     
-    <span class="absolute bottom-4 left-4 text-xs text-base-300">
+    <span class="absolute bottom-4 left-6 text-xs text-base-300">
       creado por <a href="https://github.com/enrique159" target="_blank" class="text-primary hover:underline">enrique159</a>
     </span>
   </div>

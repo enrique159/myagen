@@ -1,13 +1,25 @@
 <template>
   <div class="mx-auto w-full max-w-xl px-6">
-    <p class="text-base-content font-semibold text-center mt-4">
-      {{ `${showToday ? 'Hoy, ' : ''}${formatDate(dateCalendar)}` }}
-    </p>
-    <p class="text-base-content/60 text-center text-sm mb-4">
-      {{
-        elements.length ? `${elements.length} elementos` : 'No hay elementos'
-      }}
-    </p>
+    <div class="w-full flex justify-between items-center">
+      <!-- PREVIOUS DAY  -->
+      <button class="btn btn-circle btn-ghost text-base-content/40">
+        <IconChevronLeft />
+      </button>
+      <div>
+        <p class="text-base-content font-semibold text-center mt-4">
+          {{ `${showToday ? 'Hoy, ' : ''}${formatDate(dateCalendar)}` }}
+        </p>
+        <p class="text-base-content/60 text-center text-sm mb-4">
+          {{
+            elements.length ? `${elements.length} elementos` : 'No hay elementos'
+          }}
+        </p>
+      </div>
+      <!-- NEXT DAY -->
+      <button class="btn btn-circle btn-ghost text-base-content/40">
+        <IconChevronRight />
+      </button>
+    </div>
 
     <div class="flex flex-col gap-4">
       <div
@@ -16,29 +28,97 @@
         class="card bg-base-100 rounded-3xl"
       >
         <div class="card-body p-4">
-          <input
-            name="title"
-            type="text"
-            v-model="element.title"
-            class="input input-ghost focus:outline-none w-full p-1 h-8 text-lg font-bold placeholder:text-base-300"
-            placeholder="Escribe el titulo"
-          />
-          <div class="flex flex-wrap gap-2">
-            <div 
+          <div class="flex items-center gap-2">
+            <input
+              name="title"
+              type="text"
+              v-model="element.title"
+              class="input input-ghost focus:outline-none w-full p-1 h-8 text-lg font-bold placeholder:text-base-300"
+              placeholder="Escribe el titulo"
+            />
+            <div class="dropdown dropdown-end">
+              <div
+                tabindex="0"
+                role="button"
+                class="btn btn-xs btn-circle btn-ghost text-base-content"
+              >
+                <IconDots />
+              </div>
+              <ul
+                tabindex="0"
+                class="dropdown-content menu bg-base-100 rounded-xl z-1 w-52 p-2 shadow-xl"
+              >
+                <li>
+                  <a> <IconArchive size="16" /> Archivar </a>
+                </li>
+                <li @click="removeElement(element.id)">
+                  <a class="text-red-400"> <IconTrash size="16" /> Eliminar </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <div
               v-for="tag in element.tags"
               :key="tag.id"
-              class="text-sm px-2 py-1 rounded-full"
-              :class="`bg-[${tag.color}]/30 text-[${tag.color}]`"
+              class="text-sm px-2 py-1 rounded-full flex items-center gap-1"
+              :style="{ backgroundColor: tag.color + '4D', color: tag.color }"
             >
-              {{ tag.name }}
+              #{{ tag.name }}
+              <button
+                class="btn btn-xs btn-circle w-4 h-4 border-none tag-button shadow-none"
+                :style="{
+                  color: tag.color,
+                  '--hover-bg-color': tag.color + '80',
+                }"
+                @click="removeTag(element.id, tag.id)"
+              >
+                <IconX :size="12" />
+              </button>
+            </div>
+            <div class="dropdown">
+              <div
+                tabindex="0"
+                role="button"
+                class="btn btn-xs btn-circle btn-ghost text-base-300"
+              >
+                <IconPlus :size="16" />
+              </div>
+              <ul
+                tabindex="0"
+                class="dropdown-content menu bg-base-100 border border-base-200 rounded-xl z-1 w-60 p-2 shadow-lg"
+              >
+                <input
+                  type="text"
+                  placeholder="Buscar"
+                  class="input input-sm bg-base-200 border-none focus:outline-none w-full mb-2"
+                />
+                <li
+                  v-for="tag in tags"
+                  :key="tag.id"
+                  @click="addTag(element.id, tag)"
+                >
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="w-2 h-2 rounded-full"
+                      :style="{ backgroundColor: tag.color }"
+                    />
+                    <a class="text-base-content/60">{{ tag.name }}</a>
+                  </div>
+                </li>
+              </ul>
             </div>
           </div>
 
           <section class="flex items-center gap-4 w-full pt-4">
-            <button class="btn btn-ghost btn-sm text-info rounded-full hover:bg-base-200 hover:border-base-200">
+            <button
+              class="btn btn-ghost btn-sm text-info rounded-full hover:bg-base-200 hover:border-base-200"
+            >
               <IconNote /> Agregar nota
             </button>
-            <button class="btn btn-ghost btn-sm text-info rounded-full hover:bg-base-200 hover:border-base-200">
+            <button
+              class="btn btn-ghost btn-sm text-info rounded-full hover:bg-base-200 hover:border-base-200"
+            >
               <IconListCheck /> Agregar lista
             </button>
           </section>
@@ -63,13 +143,21 @@
 <script setup lang="ts">
 import { useApp } from '@/composables/useApp'
 import { useDate } from '@/composables/useDate'
-import { IconListCheck, IconNote, IconPlus } from '@tabler/icons-vue'
+import {
+  IconArchive,
+  IconChevronLeft,
+  IconChevronRight,
+  IconDots,
+  IconListCheck,
+  IconNote,
+  IconPlus,
+  IconTrash,
+  IconX,
+} from '@tabler/icons-vue'
 import { computed, ref } from 'vue'
 import { v4 as uuid } from 'uuid'
-import {
-  type Element,
-  ElementStatus,
-} from '@/app/modules/elements/domain/element.d'
+import type { Tag } from '@/app/modules/tags/domain/tag'
+import { useElement } from '@/composables/useElement'
 
 const { dateCalendar } = useApp()
 
@@ -78,36 +166,33 @@ const showToday = computed(() => {
 })
 
 const { formatDate, isToday } = useDate()
+const { elements, addElement, removeElement, addTag, removeTag } = useElement()
 
-// Elements
-const elements = ref<Element[]>([
+// Tags available
+const tags = ref<Tag[]>([
   {
     id: uuid(),
-    title: 'Elemento 1',
-    date: new Date(),
-    status: ElementStatus.active,
-    tags: [
-      {
-        id: uuid(),
-        name: 'Tag 1',
-        color: '#D51C1C',
-      },
-      {
-        id: uuid(),
-        name: 'Tag 2',
-        color: '#232323',
-      },
-    ],
+    name: 'work',
+    color: '#23A6B5',
+  },
+  {
+    id: uuid(),
+    name: 'dev',
+    color: '#4872E5',
+  },
+  {
+    id: uuid(),
+    name: 'personal',
+    color: '#F59E0B',
   },
 ])
-
-const addElement = () => {
-  elements.value.push({
-    id: uuid(),
-    title: ``,
-    date: new Date(),
-    status: ElementStatus.active,
-    tags: [],
-  })
-}
 </script>
+
+<style scoped>
+.tag-button {
+  background-color: transparent;
+}
+.tag-button:hover {
+  background-color: var(--hover-bg-color) !important;
+}
+</style>
