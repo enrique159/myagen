@@ -110,6 +110,11 @@
             </div>
           </div>
 
+          <!-- CONTENT  -->
+          <section class="flex flex-col gap-4">
+            
+          </section>
+
           <section class="flex items-center gap-4 w-full pt-4">
             <button
               class="btn btn-ghost btn-sm text-info rounded-full hover:bg-base-200 hover:border-base-200"

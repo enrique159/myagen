@@ -12,6 +12,8 @@ export const useElementStore = defineStore('element', () => {
       date: new Date(),
       status: ElementStatus.active,
       tags: [],
+      notes: [],
+      lists: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -24,6 +26,8 @@ export const useElementStore = defineStore('element', () => {
       date: new Date(),
       status: ElementStatus.active,
       tags: [],
+      notes: [],
+      lists: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     })

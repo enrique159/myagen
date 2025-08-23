@@ -1,4 +1,7 @@
 import type { Base } from '@/app/shared/types/Base'
+import type { Project } from '../../projects/domain/project'
+import type { Tag } from '../../tags/domain/tag'
+import type { Element } from '../../elements/domain/element'
 
 export interface User extends Base {
   email: string
@@ -7,6 +10,9 @@ export interface User extends Base {
   lastName: string
   phoneNumber: string | null
   profileImageUrl: string | null
+  projects?: Project[]
+  tags?: Tag[]
+  elements?: Element[]
   status: UserStatus
 }
 

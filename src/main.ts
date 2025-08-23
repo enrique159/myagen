@@ -8,6 +8,8 @@ import './style.css'
 // Components
 import ToggleTheme from './components/ToggleTheme.vue'
 import InputErrors from './components/InputErrors.vue'
+import LoadingSpinner from './components/LoadingSpinner.vue'
+import BasicModal from './components/BasicModal.vue'
 
 const pinia = createPinia()
 
@@ -18,4 +20,6 @@ app.use(router)
 app.component('ToggleTheme', ToggleTheme)
 app.component('InputErrors', InputErrors)
 app.component('DatePicker', VueDatePicker)
+app.component('LoadingSpinner', LoadingSpinner)
+app.component('BasicModal', BasicModal)
 app.mount('#app')
