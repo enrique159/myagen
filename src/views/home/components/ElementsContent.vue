@@ -11,7 +11,9 @@
         </p>
         <p class="text-base-content/60 text-center text-sm mb-4">
           {{
-            elements.length ? `${elements.length} elementos` : 'No hay elementos'
+            elements.length
+              ? `${elements.length} elementos`
+              : 'No hay elementos'
           }}
         </p>
       </div>
@@ -72,7 +74,7 @@
                   color: tag.color,
                   '--hover-bg-color': tag.color + '80',
                 }"
-                @click="removeTag(element.id, tag.id)"
+                @click="removeTagFromElement(element.id, tag.id)"
               >
                 <IconX :size="12" />
               </button>
@@ -97,7 +99,7 @@
                 <li
                   v-for="tag in tags"
                   :key="tag.id"
-                  @click="addTag(element.id, tag)"
+                  @click="addTagToElement(element.id, tag)"
                 >
                   <div class="flex items-center gap-2">
                     <div
@@ -107,14 +109,18 @@
                     <a class="text-base-content/60">{{ tag.name }}</a>
                   </div>
                 </li>
+                <button
+                  class="btn btn-sm btn-ghost text-xs"
+                  @click="showNewTagForm"
+                >
+                  <IconPlus size="16" /> Agregar tag
+                </button>
               </ul>
             </div>
           </div>
 
           <!-- CONTENT  -->
-          <section class="flex flex-col gap-4">
-            
-          </section>
+          <section class="flex flex-col gap-4"></section>
 
           <section class="flex items-center gap-4 w-full pt-4">
             <button
@@ -144,6 +150,58 @@
       </div>
     </div>
   </div>
+
+  <!-- NEW TAG -->
+  <basic-modal
+    v-model="showNewTagModal"
+    title="Nuevo tag"
+  >
+    <input
+      v-model="newTag.name"
+      type="text"
+      placeholder="Nombre del tag"
+      class="input input-bordered w-full mb-2"
+    />
+    <div class="dropdown w-full mb-2">
+      <div
+        tabindex="0"
+        role="button"
+        class="input input-bordered w-full flex items-center justify-between"
+      >
+        <div class="flex items-center gap-2">
+          <div
+            class="w-5 h-5 rounded-full"
+            :style="{ backgroundColor: newTag.color }"
+          ></div>
+          <span>{{ getColorName(newTag.color) }}</span>
+        </div>
+        <IconChevronDown size="18" />
+      </div>
+      <div
+        tabindex="0"
+        class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full mt-1"
+      >
+        <div class="grid grid-cols-8 gap-2 p-2">
+          <div
+            v-for="color in tagColors"
+            :key="color.value"
+            class="w-10 h-10 rounded-full cursor-pointer hover:scale-110 transition-all duration-200 flex items-center justify-center"
+            :style="{ backgroundColor: color.value }"
+            @click="selectColor(color.value)"
+          >
+            <IconCheck v-if="newTag.color === color.value" class="text-white" size="18" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button
+      class="btn btn-primary w-full btn-soft mb-6"
+      @click="submitNewTag"
+    >
+      <span>Guardar</span>
+    </button>
+  </basic-modal>
 </template>
 
 <script setup lang="ts">
@@ -151,6 +209,8 @@ import { useApp } from '@/composables/useApp'
 import { useDate } from '@/composables/useDate'
 import {
   IconArchive,
+  IconCheck,
+  IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
   IconDots,
@@ -162,11 +222,10 @@ import {
 } from '@tabler/icons-vue'
 import { computed, ref, watch } from 'vue'
 import type { Element } from '@/app/modules/elements/domain/element'
-import { v4 as uuid } from 'uuid'
-import type { Tag } from '@/app/modules/tags/domain/tag'
 import { useElement } from '@/composables/useElement'
 import { useProject } from '@/composables/useProject'
 import { handleFetchErrors } from '@/utils/handleFetchErrors'
+import { PROJECT_COLORS } from '@/constants/colors'
 
 const { dateCalendar } = useApp()
 
@@ -175,7 +234,18 @@ const showToday = computed(() => {
 })
 
 const { formatDate, isToday, formatAssignedDate } = useDate()
-const { elements, getElements, createElement, deleteElement, addTag, removeTag, updateElement } = useElement()
+const {
+  elements,
+  getElements,
+  createElement,
+  deleteElement,
+  addTagToElement,
+  removeTagFromElement,
+  updateElement,
+  tags,
+  getTags,
+  createTag,
+} = useElement()
 
 const sortedElements = computed(() => {
   return [...elements.value].sort((a, b) => {
@@ -184,13 +254,19 @@ const sortedElements = computed(() => {
 })
 
 const { currentProject } = useProject()
-watch(() => currentProject.value, () => {
-  fetchElements()
-})
+watch(
+  () => currentProject.value,
+  () => {
+    fetchElements()
+  },
+)
 
 const isLoadingElements = ref(false)
 const fetchElements = async () => {
-  await getElements({ projectId: currentProject.value?.id, assignedDate: formatAssignedDate(dateCalendar.value) })
+  await getElements({
+    projectId: currentProject.value?.id,
+    assignedDate: formatAssignedDate(dateCalendar.value),
+  })
     .catch((error) => {
       handleFetchErrors(error)
     })
@@ -200,41 +276,32 @@ const fetchElements = async () => {
 }
 fetchElements()
 
-// Tags available
-const tags = ref<Tag[]>([
-  {
-    id: uuid(),
-    name: 'work',
-    color: '#23A6B5',
-  },
-  {
-    id: uuid(),
-    name: 'dev',
-    color: '#4872E5',
-  },
-  {
-    id: uuid(),
-    name: 'personal',
-    color: '#F59E0B',
-  },
-])
+const isLoadingTags = ref(false)
+const fetchTags = async () => {
+  await getTags()
+    .catch((error) => {
+      handleFetchErrors(error)
+    })
+    .finally(() => {
+      isLoadingTags.value = false
+    })
+}
+fetchTags()
 
 // UPDATE TITLE ELEMENT
-const titleUpdateTimeouts = ref<Record<string, number>>({});
+const titleUpdateTimeouts = ref<Record<string, number>>({})
 const handleTitleChange = (element: Element) => {
   if (titleUpdateTimeouts.value[element.id]) {
     clearTimeout(titleUpdateTimeouts.value[element.id])
   }
-  
+
   titleUpdateTimeouts.value[element.id] = setTimeout(() => {
-    updateElement(element.id, { title: element.title })
-      .catch((error) => {
-        handleFetchErrors(error)
-      })
+    updateElement(element.id, { title: element.title }).catch((error) => {
+      handleFetchErrors(error)
+    })
     delete titleUpdateTimeouts.value[element.id]
   }, 2000) as unknown as number
 }
-
 
 // NEW ELEMENT
 const isLoadingCreateElement = ref(false)
@@ -263,6 +330,56 @@ const fetchDeleteElement = async (elementId: string) => {
     })
     .finally(() => {
       isLoadingDeleteElement.value = false
+    })
+}
+
+// NEW TAG
+const showNewTagModal = ref(false)
+const newTag = ref({
+  name: '',
+  color: PROJECT_COLORS.CIAN as string,
+})
+
+const showNewTagForm = () => {
+  showNewTagModal.value = true
+}
+
+const tagColors = ref([
+  { name: 'Azul', value: PROJECT_COLORS.AZUL },
+  { name: 'Rojo', value: PROJECT_COLORS.ROJO },
+  { name: 'Verde', value: PROJECT_COLORS.VERDE },
+  { name: 'Amarillo', value: PROJECT_COLORS.AMARILLO },
+  { name: 'Púrpura', value: PROJECT_COLORS.PURPURA },
+  { name: 'Rosa', value: PROJECT_COLORS.ROSA },
+  { name: 'Indigo', value: PROJECT_COLORS.INDIGO },
+  { name: 'Esmeralda', value: PROJECT_COLORS.ESMERALDA },
+  { name: 'Naranja', value: PROJECT_COLORS.NARANJA },
+  { name: 'Cian', value: PROJECT_COLORS.CIAN },
+  { name: 'Lima', value: PROJECT_COLORS.LIMA },
+  { name: 'Gris', value: PROJECT_COLORS.GRIS },
+])
+
+const selectColor = (color: string) => {
+  newTag.value.color = color
+}
+
+const getColorName = (colorValue: string): string => {
+  const color = tagColors.value.find((c) => c.value === colorValue)
+  return color ? color.name : 'Color personalizado'
+}
+
+const submitNewTag = async () => {
+  const payload = {
+    name: newTag.value.name,
+    color: newTag.value.color,
+    projectId: currentProject.value?.id,
+  }
+  await createTag(payload)
+    .catch((error) => {
+      handleFetchErrors(error)
+    })
+    .finally(() => {
+      showNewTagModal.value = false
     })
 }
 </script>

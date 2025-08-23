@@ -7,3 +7,13 @@ export interface Tag extends Base {
   user?: User
   elements?: Element[]
 }
+
+export interface ICreateTagPayload {
+  name: string
+  color: string
+}
+
+export interface IUpdateTagPayload {
+  name?: string
+  color?: string
+}

@@ -14,14 +14,24 @@ import {
   addTags as addTagsUseCase,
   removeTags as removeTagsUseCase,
 } from '@/app/modules/elements/ElementsRepository'
-import type { Tag } from '@/app/modules/tags/domain/tag'
+import {
+  createTag as createTagUseCase,
+  getTags as getTagsUseCase,
+  updateTag as updateTagUseCase,
+  deleteTag as deleteTagUseCase,
+} from '@/app/modules/tags/TagsRepository'
+import type { ICreateTagPayload, IUpdateTagPayload, Tag } from '@/app/modules/tags/domain/tag'
 
 export const useElementStore = defineStore('element', () => {
   const elements = ref<Element[]>([])
+  const tags = ref<Tag[]>([])
 
   // Mutations
   const addElement = (element: Element) => {
     elements.value.push(element)
+  }
+  const setTags = (newTags: Tag[]) => {
+    tags.value = newTags
   }
 
   const setElements = (newElements: Element[]) => {
@@ -34,7 +44,7 @@ export const useElementStore = defineStore('element', () => {
     )
   }
 
-  const addTag = (elementId: string, tag: Tag) => {
+  const addTagToElement = (elementId: string, tag: Tag) => {
     elements.value = elements.value.map((element) => {
       if (element.id === elementId) {
         const tagExists = element.tags.some(
@@ -47,7 +57,7 @@ export const useElementStore = defineStore('element', () => {
     })
   }
 
-  const removeTag = (elementId: string, tagId: string) => {
+  const removeTagFromElement = (elementId: string, tagId: string) => {
     elements.value = elements.value.map((element) => {
       if (element.id === elementId) {
         element.tags = element.tags.filter((tag) => tag.id !== tagId)
@@ -123,17 +133,70 @@ export const useElementStore = defineStore('element', () => {
     return action
   }
 
+  // TAGS
+  const createTag = async (payload: ICreateTagPayload) => {
+    const action = await createTagUseCase(payload)
+      .then((response) => {
+        setTags([...tags.value, response.data])
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    return action
+  }
+
+  const getTags = async () => {
+    const action = await getTagsUseCase()
+      .then((response) => {
+        setTags(response.data)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    return action
+  }
+
+  const updateTag = async (tagId: string, payload: IUpdateTagPayload) => {
+    const action = await updateTagUseCase(tagId, payload)
+      .then((response) => {
+        const index = tags.value.findIndex((tag) => tag.id === tagId)
+        tags.value[index] = response.data
+        return response
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    return action
+  }
+
+  const deleteTag = async (tagId: string) => {
+    const action = await deleteTagUseCase(tagId)
+      .then(() => {
+        const index = tags.value.findIndex((tag) => tag.id === tagId)
+        tags.value.splice(index, 1)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    return action
+  }
+
   return {
     elements,
     addElement,
     removeElement,
-    addTag,
-    removeTag,
+    addTagToElement,
+    removeTagFromElement,
     createElement,
     updateElement,
     getElements,
     deleteElement,
     addTags,
     removeTags,
+    tags,
+    createTag,
+    getTags,
+    updateTag,
+    deleteTag,
   }
 })

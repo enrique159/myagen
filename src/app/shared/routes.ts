@@ -28,6 +28,13 @@ const addTags = (baseUrl: string, elementId: string) =>
   `${finishSlash(baseUrl)}elements/${elementId}/tags`
 const removeTags = (baseUrl: string, elementId: string) =>
   `${finishSlash(baseUrl)}elements/${elementId}/tags`
+// TAGS ROUTES
+const createTag = (baseUrl: string) => `${finishSlash(baseUrl)}tags`
+const updateTag = (baseUrl: string, tagId: string) =>
+  `${finishSlash(baseUrl)}tags/${tagId}`
+const getTags = (baseUrl: string) => `${finishSlash(baseUrl)}tags`
+const deleteTag = (baseUrl: string, tagId: string) =>
+  `${finishSlash(baseUrl)}tags/${tagId}`
 
 
 export default {
@@ -50,4 +57,9 @@ export default {
   deleteElement,
   addTags,
   removeTags,
+  // TAGS ROUTES
+  createTag,
+  updateTag,
+  getTags,
+  deleteTag,
 }
