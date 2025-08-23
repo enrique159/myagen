@@ -33,6 +33,14 @@ export const useDate = () => {
       .format('dddd, D [de] MMMM [de] YYYY')
   }
 
+  const formatAssignedDate = (date: Date | string | undefined) => {
+    if (!date) return ''
+    return dayjs
+      .utc(date)
+      .tz(tz)
+      .format('YYYY-MM-DD')
+  }
+
 
   const isToday = (date: Date | string | undefined): boolean => {
     if (!date) return false
@@ -43,6 +51,7 @@ export const useDate = () => {
     getCurrentDate,
     formatDatetime,
     formatDate,
+    formatAssignedDate,
     isToday,
   }
 }

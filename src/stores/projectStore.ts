@@ -16,6 +16,9 @@ export const useProjectStore = defineStore('project', () => {
   const setProjects = (payload: Project[]) => {
     projects.value = payload
   }
+  const addNewProject = (payload: Project) => {
+    projects.value.push(payload)
+  }
 
   // API
   const getProjects = async () => {
@@ -33,6 +36,7 @@ export const useProjectStore = defineStore('project', () => {
   const createProject = async (payload: ICreateProjectPayload) => {
     const action = await createProjectUseCase(payload)
       .then((response) => {
+        addNewProject(response.data)
         return response
       })
       .catch((error) => {
@@ -44,6 +48,10 @@ export const useProjectStore = defineStore('project', () => {
   const updateProject = async (projectId: string, payload: IUpdateProjectPayload) => {
     const action = await updateProjectUseCase(projectId, payload)
       .then((response) => {
+        const index = projects.value.findIndex((project) => project.id === projectId)
+        if (index !== -1) {
+          projects.value[index] = response.data
+        }
         return response
       })
       .catch((error) => {

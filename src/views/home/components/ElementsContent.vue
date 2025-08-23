@@ -23,7 +23,7 @@
 
     <div class="flex flex-col gap-4">
       <div
-        v-for="element in elements"
+        v-for="element in sortedElements"
         :key="element.id"
         class="card bg-base-100 rounded-3xl"
       >
@@ -33,6 +33,7 @@
               name="title"
               type="text"
               v-model="element.title"
+              @input="() => handleTitleChange(element)"
               class="input input-ghost focus:outline-none w-full p-1 h-8 text-lg font-bold placeholder:text-base-300"
               placeholder="Escribe el titulo"
             />
@@ -51,7 +52,7 @@
                 <li>
                   <a> <IconArchive size="16" /> Archivar </a>
                 </li>
-                <li @click="removeElement(element.id)">
+                <li @click="fetchDeleteElement(element.id)">
                   <a class="text-red-400"> <IconTrash size="16" /> Eliminar </a>
                 </li>
               </ul>
@@ -135,8 +136,8 @@
         data-tip="Agregar elemento"
       >
         <button
-          class="btn btn-circle bg-base-100 btn-xl border-none"
-          @click="addElement"
+          class="btn btn-circle bg-base-100 btn-xl border-none duration-50"
+          @click="createNewElement"
         >
           <IconPlus />
         </button>
@@ -159,10 +160,13 @@ import {
   IconTrash,
   IconX,
 } from '@tabler/icons-vue'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import type { Element } from '@/app/modules/elements/domain/element'
 import { v4 as uuid } from 'uuid'
 import type { Tag } from '@/app/modules/tags/domain/tag'
 import { useElement } from '@/composables/useElement'
+import { useProject } from '@/composables/useProject'
+import { handleFetchErrors } from '@/utils/handleFetchErrors'
 
 const { dateCalendar } = useApp()
 
@@ -170,8 +174,31 @@ const showToday = computed(() => {
   return isToday(dateCalendar.value)
 })
 
-const { formatDate, isToday } = useDate()
-const { elements, addElement, removeElement, addTag, removeTag } = useElement()
+const { formatDate, isToday, formatAssignedDate } = useDate()
+const { elements, getElements, createElement, deleteElement, addTag, removeTag, updateElement } = useElement()
+
+const sortedElements = computed(() => {
+  return [...elements.value].sort((a, b) => {
+    return new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime()
+  })
+})
+
+const { currentProject } = useProject()
+watch(() => currentProject.value, () => {
+  fetchElements()
+})
+
+const isLoadingElements = ref(false)
+const fetchElements = async () => {
+  await getElements({ projectId: currentProject.value?.id, assignedDate: formatAssignedDate(dateCalendar.value) })
+    .catch((error) => {
+      handleFetchErrors(error)
+    })
+    .finally(() => {
+      isLoadingElements.value = false
+    })
+}
+fetchElements()
 
 // Tags available
 const tags = ref<Tag[]>([
@@ -191,6 +218,53 @@ const tags = ref<Tag[]>([
     color: '#F59E0B',
   },
 ])
+
+// UPDATE TITLE ELEMENT
+const titleUpdateTimeouts = ref<Record<string, number>>({});
+const handleTitleChange = (element: Element) => {
+  if (titleUpdateTimeouts.value[element.id]) {
+    clearTimeout(titleUpdateTimeouts.value[element.id])
+  }
+  
+  titleUpdateTimeouts.value[element.id] = setTimeout(() => {
+    updateElement(element.id, { title: element.title })
+      .catch((error) => {
+        handleFetchErrors(error)
+      })
+    delete titleUpdateTimeouts.value[element.id]
+  }, 2000) as unknown as number
+}
+
+
+// NEW ELEMENT
+const isLoadingCreateElement = ref(false)
+const createNewElement = async () => {
+  const payload = {
+    assignedDate: dateCalendar.value,
+    projectId: currentProject.value?.id,
+  }
+  isLoadingCreateElement.value = true
+  await createElement(payload)
+    .catch((error) => {
+      handleFetchErrors(error)
+    })
+    .finally(() => {
+      isLoadingCreateElement.value = false
+    })
+}
+
+// DELETE ELEMENT
+const isLoadingDeleteElement = ref(false)
+const fetchDeleteElement = async (elementId: string) => {
+  isLoadingDeleteElement.value = true
+  await deleteElement(elementId)
+    .catch((error) => {
+      handleFetchErrors(error)
+    })
+    .finally(() => {
+      isLoadingDeleteElement.value = false
+    })
+}
 </script>
 
 <style scoped>

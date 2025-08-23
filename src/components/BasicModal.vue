@@ -2,7 +2,7 @@
   <div
     v-if="showModal"
     class="absolute top-0 left-0 w-full h-full bg-base-content/20 overflow-hidden z-50"
-    @click.self="showModal = false"
+    @click.self="closeOnClickOutside && (showModal = false)"
   >
     <div
       class="relative min-w-[460px] w-full md:w-fit h-full md:h-fit min-h-[200px] bg-base-100 md:rounded-2xl top-0 left-0 md:top-1/2 md:left-1/2 md:transform md:-translate-x-1/2 md:-translate-y-1/2 custom-animate max-md:overflow-auto"
@@ -49,6 +49,10 @@ const props = defineProps({
     type: String,
     required: false,
     default: '',
+  },
+  closeOnClickOutside: {
+    type: Boolean,
+    default: true,
   },
 })
 

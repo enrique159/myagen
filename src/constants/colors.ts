@@ -1,0 +1,14 @@
+export const PROJECT_COLORS = Object.freeze({
+  AZUL: '#3B82F6',
+  ROJO: '#EF4444',
+  VERDE: '#10B981',
+  AMARILLO: '#F59E0B',
+  PURPURA: '#8B5CF6',
+  ROSA: '#EC4899',
+  INDIGO: '#6366F1',
+  ESMERALDA: '#059669',
+  NARANJA: '#F97316',
+  CIAN: '#06B6D4',
+  LIMA: '#84CC16',
+  GRIS: '#6B7280',
+})

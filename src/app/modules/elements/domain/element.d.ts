@@ -21,3 +21,21 @@ export enum ElementStatus {
   inactive = 'inactive',
   deleted = 'deleted',
 }
+
+export interface ICreateElementPayload {
+  assignedDate: Date
+  projectId?: string
+}
+
+export interface IUpdateElementPayload {
+  title?: string
+  assignedDate?: Date
+  projectId?: string
+  status?: ElementStatus
+}
+
+export interface IGetElementsParams {
+  projectId?: string
+  assignedDate?: string
+}
+
