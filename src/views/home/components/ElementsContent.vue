@@ -60,7 +60,7 @@
               </ul>
             </div>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2 mb-4">
             <div
               v-for="tag in element.tags"
               :key="tag.id"
@@ -89,7 +89,8 @@
               </div>
               <ul
                 tabindex="0"
-                class="dropdown-content menu bg-base-100 border border-base-200 rounded-xl z-1 w-60 p-2 shadow-lg"
+                class="dropdown-content menu bg-base-100 border border-base-200 rounded-xl w-60 p-2 shadow-lg"
+                style="z-index: 40 !important"
               >
                 <input
                   type="text"
@@ -120,18 +121,67 @@
           </div>
 
           <!-- CONTENT  -->
-          <section class="flex flex-col gap-4"></section>
+          <section class="flex flex-col gap-2">
+            <div
+              v-for="list in element?.lists?.sort((a, b) => a.order - b.order)"
+              :key="`element-${element.id}-list-${list.id}`"
+            >
+              <!-- NOTE TYPE -->
+              <div
+                class="list-container px-3 pt-2 pb-1 hover:bg-gray-500/5 rounded-xl w-full transition-all duration-300 relative"
+                v-if="list.type === TodoListType.NOTE"
+              >
+                <textarea
+                  :id="`list-${list.id}`"
+                  class="placeholder:text-base-300 border-none focus:outline-none w-full resize-none"
+                  placeholder="Escribe una nota"
+                  v-model="list.content"
+                  rows="1"
+                  @input="(e) => {
+                    autoResizeTextarea(e.target as HTMLTextAreaElement);
+                    handleListContentChange(list);
+                  }"
+                />
+                <button
+                  class="delete-list-btn absolute -top-2 -right-2 z-10 btn btn-xs btn-circle bg-gray-700 duration-300 transition-all opacity-10"
+                  @click="deleteList(element.id, list.id)"
+                >
+                  <IconMinus size="14" class="text-white" />
+                </button>
+              </div>
 
-          <section class="flex items-center gap-4 w-full pt-4">
+              <!-- LIST  -->
+              <div
+                class="list-container px-3 py-2 hover:bg-gray-500/5 rounded-xl w-full transition-all duration-300 relative flex flex-col"
+                v-if="list.type === TodoListType.TODO"
+              >
+                <div class="flex gap-2">
+                  <div class="outline-2 outline-base-300/50 rounded-full w-4 h-4 aspect-square mt-[2px]" />
+                  <input type="text" v-model="newTaskInput" class="w-full placeholder:text-base-300 border-none focus:outline-none" placeholder="Escribe una tarea" />
+                </div>
+
+                <button
+                  class="delete-list-btn absolute -top-2 -right-2 z-10 btn btn-xs btn-circle bg-gray-700 duration-300 transition-all opacity-10"
+                  @click="deleteList(element.id, list.id)"
+                >
+                  <IconMinus size="14" class="text-white" />
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="flex items-center gap-4 w-full">
             <button
               class="btn btn-ghost btn-sm text-info rounded-full hover:bg-base-200 hover:border-base-200"
+              @click="createList({ elementId: element.id, type: TodoListType.NOTE, order: element.lists.length + 1 })"
             >
-              <IconNote /> Agregar nota
+              <IconNote size="18" /> Agregar nota
             </button>
             <button
               class="btn btn-ghost btn-sm text-info rounded-full hover:bg-base-200 hover:border-base-200"
+              @click="createList({ elementId: element.id, type: TodoListType.TODO, order: element.lists.length + 1 })"
             >
-              <IconListCheck /> Agregar lista
+              <IconListCheck size="18" /> Agregar lista
             </button>
           </section>
         </div>
@@ -215,18 +265,20 @@ import {
   IconChevronRight,
   IconDots,
   IconListCheck,
+  IconMinus,
   IconNote,
   IconPlus,
   IconTrash,
   IconX,
 } from '@tabler/icons-vue'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type { Element } from '@/app/modules/elements/domain/element'
 import { useElement } from '@/composables/useElement'
 import { useProject } from '@/composables/useProject'
 import { handleFetchErrors } from '@/utils/handleFetchErrors'
 import { PROJECT_COLORS } from '@/constants/colors'
 import type { ICreateTagPayload } from '@/app/modules/tags/domain/tag'
+import { TodoListType, type TodoList } from '@/app/modules/todo-lists/domain/todo-list.d'
 
 const { dateCalendar } = useApp()
 
@@ -246,6 +298,9 @@ const {
   tags,
   getTags,
   createTag,
+  createList,
+  updateList,
+  deleteList,
 } = useElement()
 
 const sortedElements = computed(() => {
@@ -255,12 +310,9 @@ const sortedElements = computed(() => {
 })
 
 const { currentProject } = useProject()
-watch(
-  () => currentProject.value,
-  () => {
-    fetchElements()
-  },
-)
+watch([() => currentProject.value, () => dateCalendar.value], () => {
+  fetchElements()
+})
 
 const isLoadingElements = ref(false)
 const fetchElements = async () => {
@@ -382,6 +434,60 @@ const submitNewTag = async () => {
       showNewTagModal.value = false
     })
 }
+
+// LIST
+const newTaskInput = ref('')
+
+const listUpdateTimeouts = ref<Record<string, number>>({})
+const handleListContentChange = (list: TodoList) => {
+  if (listUpdateTimeouts.value[list.id]) {
+    clearTimeout(listUpdateTimeouts.value[list.id])
+  }
+
+  listUpdateTimeouts.value[list.id] = setTimeout(() => {
+    updateList(list.id, { content: list.content })
+    .catch((error) => {
+      handleFetchErrors(error)
+    })
+    delete listUpdateTimeouts.value[list.id]
+  }, 2000) as unknown as number
+}
+
+// Auto-resize textarea based on content
+const autoResizeTextarea = (textarea: HTMLTextAreaElement) => {
+  if (!textarea) return
+  
+  // Reset height to calculate the new height
+  textarea.style.height = 'auto'
+  
+  // Calculate the new height based on scrollHeight
+  const newHeight = textarea.scrollHeight
+  textarea.style.height = `${newHeight}px`
+}
+
+// Initialize auto-resize for existing textareas
+const initializeTextareas = () => {
+  nextTick(() => {
+    elements.value.forEach(element => {
+      element.lists?.forEach(list => {
+        const textarea = document.getElementById(`list-${list.id}`) as HTMLTextAreaElement
+        if (textarea) {
+          autoResizeTextarea(textarea)
+        }
+      })
+    })
+  })
+}
+
+// Call initializeTextareas when elements change
+watch(() => elements.value, () => {
+  initializeTextareas()
+}, { deep: true })
+
+// Initial setup
+onMounted(() => {
+  initializeTextareas()
+})
 </script>
 
 <style scoped>
@@ -390,5 +496,9 @@ const submitNewTag = async () => {
 }
 .tag-button:hover {
   background-color: var(--hover-bg-color) !important;
+}
+
+.list-container:hover .delete-list-btn {
+  opacity: 1;
 }
 </style>

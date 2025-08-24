@@ -1,5 +1,7 @@
 import type { ICreateElementPayload, IGetElementsParams, IUpdateElementPayload } from '@/app/modules/elements/domain/element'
 import type { ICreateTagPayload, IUpdateTagPayload } from '@/app/modules/tags/domain/tag'
+import type { ICreateTaskPayload, IUpdateTaskPayload } from '@/app/modules/tasks/domain/task'
+import type { ICreateTodoListPayload, IUpdateTodoListPayload } from '@/app/modules/todo-lists/domain/todo-list'
 import { useElementStore } from '@/stores/elementStore'
 import { storeToRefs } from 'pinia'
 
@@ -54,7 +56,34 @@ export const useElement = () => {
     return elementStore.deleteTag(tagId)
   }
 
+  // TODO-LISTS
+  function createList(payload: ICreateTodoListPayload) {
+    return elementStore.createList(payload)
+  }
+
+  function updateList(listId: string, payload: IUpdateTodoListPayload) {
+    return elementStore.updateList(listId, payload)
+  }
+
+  function deleteList(elementId: string, listId: string) {
+    return elementStore.deleteList(elementId, listId)
+  }
+
+  // TASKS
+  function createTask(elementId: string, payload: ICreateTaskPayload) {
+    return elementStore.createTask(elementId, payload)
+  }
+
+  function updateTask(ids: { elementId: string, listId: string, taskId: string }, payload: IUpdateTaskPayload) {
+    return elementStore.updateTask(ids.elementId, ids.listId, ids.taskId, payload)
+  }
+
+  function deleteTask(ids: { elementId: string, listId: string, taskId: string }) {
+    return elementStore.deleteTask(ids.elementId, ids.listId, ids.taskId)
+  }
+
   return {
+    // ELEMENTS
     elements,
     removeElement,
     addTagsToElement,
@@ -63,10 +92,19 @@ export const useElement = () => {
     updateElement,
     getElements,
     deleteElement,
+    // TAGS
     tags,
     createTag,
     getTags,
     updateTag,
     deleteTag,
+    // TODO-LISTS
+    createList,
+    updateList,
+    deleteList,
+    // TASKS
+    createTask,
+    updateTask,
+    deleteTask,
   }
 }

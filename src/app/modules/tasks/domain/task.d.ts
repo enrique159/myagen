@@ -8,3 +8,13 @@ export interface Task extends Base {
   reminder?: Reminder | null
   list?: TodoList
 }
+
+export interface ICreateTaskPayload {
+  listId: string
+  description: string
+}
+
+export interface IUpdateTaskPayload {
+  description: string
+  completed: boolean
+}

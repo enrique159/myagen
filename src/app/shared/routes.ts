@@ -35,6 +35,14 @@ const updateTag = (baseUrl: string, tagId: string) =>
 const getTags = (baseUrl: string) => `${finishSlash(baseUrl)}tags`
 const deleteTag = (baseUrl: string, tagId: string) =>
   `${finishSlash(baseUrl)}tags/${tagId}`
+// TODO-LISTS ROUTES
+const createList = (baseUrl: string) => `${finishSlash(baseUrl)}todo-lists`
+const updateList = (baseUrl: string, listId: string) => `${finishSlash(baseUrl)}todo-lists/${listId}`
+const deleteList = (baseUrl: string, listId: string) => `${finishSlash(baseUrl)}todo-lists/${listId}`
+// TASKS ROUTES
+const createTask = (baseUrl: string) => `${finishSlash(baseUrl)}tasks`
+const updateTask = (baseUrl: string, taskId: string) => `${finishSlash(baseUrl)}tasks/${taskId}`
+const deleteTask = (baseUrl: string, taskId: string) => `${finishSlash(baseUrl)}tasks/${taskId}`
 
 
 export default {
@@ -62,4 +70,12 @@ export default {
   updateTag,
   getTags,
   deleteTag,
+  // TODO-LISTS ROUTES
+  createList,
+  updateList,
+  deleteList,
+  // TASKS ROUTES
+  createTask,
+  updateTask,
+  deleteTask,
 }

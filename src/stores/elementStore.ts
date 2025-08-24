@@ -20,18 +20,25 @@ import {
   updateTag as updateTagUseCase,
   deleteTag as deleteTagUseCase,
 } from '@/app/modules/tags/TagsRepository'
+import {
+  createList as createListUseCase,
+  updateList as updateListUseCase,
+  deleteList as deleteListUseCase,
+} from '@/app/modules/todo-lists/TodoListsRepository'
+import {
+  createTask as createTaskUseCase,
+  updateTask as updateTaskUseCase,
+  deleteTask as deleteTaskUseCase,
+} from '@/app/modules/tasks/TasksRepository'
 import type { ICreateTagPayload, IUpdateTagPayload, Tag } from '@/app/modules/tags/domain/tag'
+import type { ICreateTodoListPayload, IUpdateTodoListPayload, TodoList } from '@/app/modules/todo-lists/domain/todo-list'
+import type { ICreateTaskPayload, IUpdateTaskPayload, Task } from '@/app/modules/tasks/domain/task'
 
 export const useElementStore = defineStore('element', () => {
   const elements = ref<Element[]>([])
-  const tags = ref<Tag[]>([])
 
-  // Mutations
   const addElement = (element: Element) => {
     elements.value.push(element)
-  }
-  const setTags = (newTags: Tag[]) => {
-    tags.value = newTags
   }
 
   const setElements = (newElements: Element[]) => {
@@ -44,16 +51,6 @@ export const useElementStore = defineStore('element', () => {
     )
   }
 
-  const setTagsElement = (elementId: string, tags: Tag[]) => {
-    elements.value = elements.value.map((element) => {
-      if (element.id === elementId) {
-        element.tags = tags
-      }
-      return element
-    })
-  }
-
-  // Actions API
   const createElement = async (payload: ICreateElementPayload) => {
     const action = await createElementUseCase(payload)
       .then((response) => {
@@ -123,6 +120,21 @@ export const useElementStore = defineStore('element', () => {
   }
 
   // TAGS
+  const tags = ref<Tag[]>([])
+
+  const setTags = (newTags: Tag[]) => {
+    tags.value = newTags
+  }
+
+  const setTagsElement = (elementId: string, tags: Tag[]) => {
+    elements.value = elements.value.map((element) => {
+      if (element.id === elementId) {
+        element.tags = tags
+      }
+      return element
+    })
+  }
+
   const createTag = async (payload: ICreateTagPayload) => {
     const action = await createTagUseCase(payload)
       .then((response) => {
@@ -170,7 +182,131 @@ export const useElementStore = defineStore('element', () => {
     return action
   }
 
+  // NOTES
+  const addElementList = (elementId: string, list: TodoList) => {
+    const index = elements.value.findIndex((element) => element.id === elementId)
+    elements.value[index]?.lists?.push(list)
+  }
+
+  const createList = async (payload: ICreateTodoListPayload) => {
+    const action = await createListUseCase(payload)
+      .then((response) => {
+        addElementList(payload.elementId, response.data)
+        return response
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    return action
+  }
+
+  const updateList = async (listId: string, payload: IUpdateTodoListPayload) => {
+    const action = await updateListUseCase(listId, payload)
+      .then((response) => {
+        const index = elements.value.findIndex((element) => element.id === listId)
+        elements.value[index]?.lists?.forEach((list) => {
+          if (list.id === listId) {
+            list.content = payload.content || list.content
+          }
+        })
+        return response
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    return action
+  }
+
+  const deleteList = async (elementId: string, listId: string) => {
+    const action = await deleteListUseCase(listId)
+      .then(() => {
+        const elementIndex = elements.value.findIndex((element) => element.id === elementId)
+        if (elementIndex !== -1 && elements.value[elementIndex]?.lists) {
+          const listIndex = elements.value[elementIndex].lists.findIndex((list) => list.id === listId)
+          if (listIndex !== -1) {
+            elements.value[elementIndex].lists.splice(listIndex, 1)
+          }
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    return action
+  }
+
+  // TASKS
+  const addTaskToElementList = (elementId: string, listId: string, task: Task) => {
+    const elementIndex = elements.value.findIndex((element) => element.id === elementId)
+    if (elementIndex !== -1 && elements.value[elementIndex]?.lists) {
+      const listIndex = elements.value[elementIndex].lists.findIndex((list) => list.id === listId)
+      if (listIndex !== -1) {
+        elements.value[elementIndex]?.lists[listIndex]?.tasks?.push(task)
+      }
+    }
+  }
+
+  const removeTaskFromElementList = (elementId: string, listId: string, taskId: string) => {
+    const elementIndex = elements.value.findIndex((element) => element.id === elementId)
+    if (elementIndex !== -1 && elements.value[elementIndex]?.lists) {
+      const listIndex = elements.value[elementIndex].lists.findIndex((list) => list.id === listId)
+      if (listIndex !== -1) {
+        elements.value[elementIndex]?.lists[listIndex]?.tasks?.forEach((task) => {
+          if (task.id === taskId) {
+            elements.value[elementIndex]?.lists[listIndex]?.tasks?.splice(elements.value[elementIndex]?.lists[listIndex]?.tasks?.indexOf(task), 1)
+          }
+        })
+      }
+    }
+  }
+
+  const createTask = async (elementId: string, payload: ICreateTaskPayload) => {
+    const action = await createTaskUseCase(payload)
+      .then((response) => {
+        addTaskToElementList(elementId, payload.listId, response.data)
+        return response
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    return action
+  }
+
+  const updateTask = async (elementId: string, listId: string, taskId: string, payload: IUpdateTaskPayload) => {
+    const action = await updateTaskUseCase(taskId, payload)
+      .then((response) => {
+        const elementIndex = elements.value.findIndex((element) => element.id === elementId)
+        if (elementIndex !== -1 && elements.value[elementIndex]?.lists) {
+          const listIndex = elements.value[elementIndex].lists.findIndex((list) => list.id === listId)
+          if (listIndex !== -1) {
+            elements.value[elementIndex]?.lists[listIndex]?.tasks?.forEach((task) => {
+              if (task.id === taskId) {
+                task.description = payload.description || task.description
+                task.completed = payload.completed || task.completed
+              }
+            })
+          }
+        }
+        return response
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    return action
+  }
+
+  const deleteTask = async (elementId: string, listId: string, taskId: string) => {
+    const action = await deleteTaskUseCase(taskId)
+      .then(() => {
+        removeTaskFromElementList(elementId, listId, taskId)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    return action
+  }
+
   return {
+    // ELEMENTS
     elements,
     addElement,
     removeElement,
@@ -180,10 +316,19 @@ export const useElementStore = defineStore('element', () => {
     updateElement,
     getElements,
     deleteElement,
+    // TAGS
     tags,
     createTag,
     getTags,
     updateTag,
     deleteTag,
+    // TODO-LISTS
+    createList,
+    updateList,
+    deleteList,
+    // TASKS
+    createTask,
+    updateTask,
+    deleteTask,
   }
 })
