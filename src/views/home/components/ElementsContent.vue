@@ -166,7 +166,7 @@
                   <div
                     class="outline-2 border-2 border-base-100 rounded-full w-4 h-4 aspect-square cursor-pointer mt-[2px]"
                     :class="[ task.completed ? 'bg-info outline-info' : 'outline-base-300/50' ]"
-                    @click="
+                    @click="() => {
                       updateTask(
                         {
                           elementId: element.id,
@@ -178,12 +178,14 @@
                           completed: !task.completed,
                         },
                       )
-                    "
+                      if (!task.completed) soundEffect()
+                    }"
                   />
                   <textarea
                     :id="`task-${task.id}`"
                     v-model="task.description"
-                    class="border-none focus:outline-none w-full resize-none"
+                    class="border-none focus:outline-none w-full resize-none font-medium"
+                    :class="{ 'text-base-content/40 line-through': task.completed }"
                     @input="() => {
                       if (task.description === '') {
                         deleteTask({
@@ -210,7 +212,7 @@
                 <!-- NEW TASK -->
                 <div class="flex gap-2">
                   <div
-                    class="outline-2 outline-base-300/50 rounded-full w-4 h-4 aspect-square mt-[2px]"
+                    class="w-4 h-4 aspect-square mt-[2px]"
                   />
                   <input
                     v-model="newTaskInput"
@@ -362,6 +364,7 @@ import {
   type TodoList,
 } from '@/app/modules/todo-lists/domain/todo-list.d'
 import type { Task } from '@/app/modules/tasks/domain/task'
+import TaskCompletedSound from '@/assets/task_completed.mp3'
 
 const { dateCalendar } = useApp()
 
@@ -599,6 +602,13 @@ watch(
 onMounted(() => {
   initializeTextareas()
 })
+
+const soundEffect = () => {
+  const audio = new Audio(TaskCompletedSound)
+  audio.play().catch(error => {
+    console.error('Error al reproducir el sonido de notificación:', error)
+  })
+}
 </script>
 
 <style scoped>

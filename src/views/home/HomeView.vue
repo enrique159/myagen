@@ -5,8 +5,10 @@
     <!-- ELEMENTS CONTENT -->
     <elements-content />
     <!-- RIGHT MENU -->
-    <div>
-      <toggle-theme />
+    <div class="p-6 space-y-6 relative h-full">
+      <div class="flex items-center gap-2 bg-base-100 px-4 py-4 rounded-2xl">
+        he
+      </div>
     </div>
   </div>
 </template>
