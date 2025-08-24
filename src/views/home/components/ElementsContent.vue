@@ -137,10 +137,12 @@
                   placeholder="Escribe una nota"
                   v-model="list.content"
                   rows="1"
-                  @input="(e) => {
-                    autoResizeTextarea(e.target as HTMLTextAreaElement);
-                    handleListContentChange(list);
-                  }"
+                  @input="
+                    (e) => {
+                      autoResizeTextarea(e.target as HTMLTextAreaElement)
+                      handleListContentChange(list)
+                    }
+                  "
                 />
                 <button
                   class="delete-list-btn absolute -top-2 -right-2 z-10 btn btn-xs btn-circle bg-gray-700 duration-300 transition-all opacity-10"
@@ -155,9 +157,76 @@
                 class="list-container px-3 py-2 hover:bg-gray-500/5 rounded-xl w-full transition-all duration-300 relative flex flex-col"
                 v-if="list.type === TodoListType.TODO"
               >
+                <!-- TASKS -->
+                <div
+                  v-for="task in list.tasks"
+                  :key="`task-${task.id}`"
+                  class="flex gap-2 mb-2"
+                >
+                  <div
+                    class="outline-2 border-2 border-base-100 rounded-full w-4 h-4 aspect-square cursor-pointer mt-[2px]"
+                    :class="[ task.completed ? 'bg-info outline-info' : 'outline-base-300/50' ]"
+                    @click="
+                      updateTask(
+                        {
+                          elementId: element.id,
+                          listId: list.id,
+                          taskId: task.id,
+                        },
+                        {
+                          description: task.description,
+                          completed: !task.completed,
+                        },
+                      )
+                    "
+                  />
+                  <textarea
+                    :id="`task-${task.id}`"
+                    v-model="task.description"
+                    class="border-none focus:outline-none w-full resize-none"
+                    @input="() => {
+                      if (task.description === '') {
+                        deleteTask({
+                          elementId: element.id,
+                          listId: list.id,
+                          taskId: task.id,
+                        })
+                      } else {
+                        handleTaskChange(task, list, element)
+                      }
+                    }"
+                    @keydown.backspace="() => {
+                      if (task.description === '') {
+                        deleteTask({
+                          elementId: element.id,
+                          listId: list.id,
+                          taskId: task.id,
+                        })
+                      }
+                    }"
+                    rows="1"
+                  />
+                </div>
+                <!-- NEW TASK -->
                 <div class="flex gap-2">
-                  <div class="outline-2 outline-base-300/50 rounded-full w-4 h-4 aspect-square mt-[2px]" />
-                  <input type="text" v-model="newTaskInput" class="w-full placeholder:text-base-300 border-none focus:outline-none" placeholder="Escribe una tarea" />
+                  <div
+                    class="outline-2 outline-base-300/50 rounded-full w-4 h-4 aspect-square mt-[2px]"
+                  />
+                  <input
+                    v-model="newTaskInput"
+                    class="w-full placeholder:text-base-300 border-none focus:outline-none"
+                    placeholder="Escribe una tarea"
+                    @keypress.enter="
+                      () => {
+                        if (newTaskInput.trim() === '') return
+                        createTask(element.id, {
+                          listId: list.id,
+                          description: newTaskInput,
+                        })
+                        newTaskInput = ''
+                      }
+                    "
+                  />
                 </div>
 
                 <button
@@ -173,13 +242,25 @@
           <section class="flex items-center gap-4 w-full">
             <button
               class="btn btn-ghost btn-sm text-info rounded-full hover:bg-base-200 hover:border-base-200"
-              @click="createList({ elementId: element.id, type: TodoListType.NOTE, order: element.lists.length + 1 })"
+              @click="
+                createList({
+                  elementId: element.id,
+                  type: TodoListType.NOTE,
+                  order: element.lists.length + 1,
+                })
+              "
             >
               <IconNote size="18" /> Agregar nota
             </button>
             <button
               class="btn btn-ghost btn-sm text-info rounded-full hover:bg-base-200 hover:border-base-200"
-              @click="createList({ elementId: element.id, type: TodoListType.TODO, order: element.lists.length + 1 })"
+              @click="
+                createList({
+                  elementId: element.id,
+                  type: TodoListType.TODO,
+                  order: element.lists.length + 1,
+                })
+              "
             >
               <IconListCheck size="18" /> Agregar lista
             </button>
@@ -202,10 +283,7 @@
   </div>
 
   <!-- NEW TAG -->
-  <basic-modal
-    v-model="showNewTagModal"
-    title="Nuevo tag"
-  >
+  <basic-modal v-model="showNewTagModal" title="Nuevo tag">
     <input
       v-model="newTag.name"
       type="text"
@@ -239,16 +317,17 @@
             :style="{ backgroundColor: color.value }"
             @click="selectColor(color.value)"
           >
-            <IconCheck v-if="newTag.color === color.value" class="text-white" size="18" />
+            <IconCheck
+              v-if="newTag.color === color.value"
+              class="text-white"
+              size="18"
+            />
           </div>
         </div>
       </div>
     </div>
 
-    <button
-      class="btn btn-primary w-full btn-soft mb-6"
-      @click="submitNewTag"
-    >
+    <button class="btn btn-primary w-full btn-soft mb-6" @click="submitNewTag">
       <span>Guardar</span>
     </button>
   </basic-modal>
@@ -278,7 +357,11 @@ import { useProject } from '@/composables/useProject'
 import { handleFetchErrors } from '@/utils/handleFetchErrors'
 import { PROJECT_COLORS } from '@/constants/colors'
 import type { ICreateTagPayload } from '@/app/modules/tags/domain/tag'
-import { TodoListType, type TodoList } from '@/app/modules/todo-lists/domain/todo-list.d'
+import {
+  TodoListType,
+  type TodoList,
+} from '@/app/modules/todo-lists/domain/todo-list.d'
+import type { Task } from '@/app/modules/tasks/domain/task'
 
 const { dateCalendar } = useApp()
 
@@ -301,6 +384,9 @@ const {
   createList,
   updateList,
   deleteList,
+  createTask,
+  updateTask,
+  deleteTask,
 } = useElement()
 
 const sortedElements = computed(() => {
@@ -443,24 +529,35 @@ const handleListContentChange = (list: TodoList) => {
   if (listUpdateTimeouts.value[list.id]) {
     clearTimeout(listUpdateTimeouts.value[list.id])
   }
-
   listUpdateTimeouts.value[list.id] = setTimeout(() => {
-    updateList(list.id, { content: list.content })
-    .catch((error) => {
+    updateList(list.id, { content: list.content }).catch((error) => {
       handleFetchErrors(error)
     })
     delete listUpdateTimeouts.value[list.id]
   }, 2000) as unknown as number
 }
 
+const taskUpdateTimeouts = ref<Record<string, number>>({})
+const handleTaskChange = (task: Task, list: TodoList, element: Element) => {
+  if (taskUpdateTimeouts.value[task.id]) {
+    clearTimeout(taskUpdateTimeouts.value[task.id])
+  }
+  taskUpdateTimeouts.value[task.id] = setTimeout(() => {
+    updateTask({
+      elementId: element.id,
+      listId: list.id,
+      taskId: task.id,
+    }, { description: task.description, completed: task.completed }).catch((error) => {
+      handleFetchErrors(error)
+    })
+    delete taskUpdateTimeouts.value[task.id]
+  }, 2000) as unknown as number
+}
+
 // Auto-resize textarea based on content
 const autoResizeTextarea = (textarea: HTMLTextAreaElement) => {
   if (!textarea) return
-  
-  // Reset height to calculate the new height
   textarea.style.height = 'auto'
-  
-  // Calculate the new height based on scrollHeight
   const newHeight = textarea.scrollHeight
   textarea.style.height = `${newHeight}px`
 }
@@ -468,21 +565,35 @@ const autoResizeTextarea = (textarea: HTMLTextAreaElement) => {
 // Initialize auto-resize for existing textareas
 const initializeTextareas = () => {
   nextTick(() => {
-    elements.value.forEach(element => {
-      element.lists?.forEach(list => {
-        const textarea = document.getElementById(`list-${list.id}`) as HTMLTextAreaElement
+    elements.value.forEach((element) => {
+      element.lists?.forEach((list) => {
+        const textarea = document.getElementById(
+          `list-${list.id}`,
+        ) as HTMLTextAreaElement
         if (textarea) {
           autoResizeTextarea(textarea)
         }
+        list.tasks?.forEach((task) => {
+          const textarea = document.getElementById(
+            `task-${task.id}`,
+          ) as HTMLTextAreaElement
+          if (textarea) {
+            autoResizeTextarea(textarea)
+          }
+        })
       })
     })
   })
 }
 
 // Call initializeTextareas when elements change
-watch(() => elements.value, () => {
-  initializeTextareas()
-}, { deep: true })
+watch(
+  () => elements.value,
+  () => {
+    initializeTextareas()
+  },
+  { deep: true },
+)
 
 // Initial setup
 onMounted(() => {
