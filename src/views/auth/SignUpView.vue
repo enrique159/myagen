@@ -17,7 +17,7 @@
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <!-- NAME -->
           <fieldset class="form-control">
-            <label class="input w-full">
+            <label class="input w-full rounded-full">
               <IconUser class="text-gray-500" />
               <input
                 v-model.trim="formData.name"
@@ -31,7 +31,7 @@
 
           <!-- LAST NAME -->
           <fieldset class="form-control">
-            <label class="input w-full">
+            <label class="input w-full rounded-full">
               <IconUser class="text-gray-500" />
               <input
                 v-model.trim="formData.lastName"
@@ -45,7 +45,7 @@
 
           <!-- EMAIL -->
           <fieldset class="form-control">
-            <label class="input w-full">
+            <label class="input w-full rounded-full">
               <IconMail class="text-gray-500" />
               <input
                 v-model.trim="formData.email"
@@ -60,7 +60,7 @@
 
           <!-- PASSWORD -->
           <fieldset class="form-control">
-            <label class="input w-full relative">
+            <label class="input w-full relative rounded-full">
               <IconLock class="text-gray-500" />
               <input
                 v-model.trim="formData.password"
@@ -102,7 +102,7 @@
 
           <!-- CONFIRM PASSWORD -->
           <fieldset class="form-control">
-            <label class="input w-full relative">
+            <label class="input w-full relative rounded-full">
               <IconLock class="text-gray-500" />
               <input
                 v-model.trim="formData.confirmPassword"
@@ -126,7 +126,7 @@
           <div class="form-control">
             <button
               type="submit"
-              class="btn bg-secondary text-white hover:bg-secondary/80 w-full shadow-none"
+              class="btn bg-secondary text-white hover:bg-secondary/80 w-full shadow-none rounded-full"
               :disabled="isLoading"
             >
               <span

@@ -1,41 +1,49 @@
 <template>
-  <main class="min-h-screen min-w-screen">
-    <router-view />
+  <div
+    v-if="loading"
+    class="h-screen flex flex-col justify-center items-center gap-4"
+  >
+    <img src="@/assets/logo_icon.svg" alt="Logo" class="w-12 mb-2" />
+    <progress class="progress w-56 text-[#4872E5]" />
+  </div>
+  <main v-else class="min-h-screen min-w-screen">
+    <router-view v-if="validated" />
   </main>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { check } from './app/auth/repository/AuthRepository'
 import { useUser } from '@/composables/useUser'
-import type { Response } from './app/network/domain/interfaces'
-import type { ISignInResponse } from '@/app/auth/domain/auth'
 import { useRouter } from 'vue-router'
 import { useTheme } from './composables/useTheme'
 import { useApp } from './composables/useApp'
 
 const router = useRouter()
 const { setUser } = useUser()
-const { setValidated } = useApp()
+const { setValidated, validated } = useApp()
 
 useTheme()
-const loading = ref(false)
+const loading = ref(true)
 const isAuthenticated = async () => {
   loading.value = true
-  await check()
-    .then((response: Response<ISignInResponse>) => {
-      setUser(response.data)
-      router.push({ name: 'Home' })
-    })
-    .catch(() => {
-      router.push('/auth/signin')
-    })
-    .finally(() => {
-      loading.value = false
-      setValidated(true)
-    })
+  try {
+    const response = await check()
+    setUser(response.data)
+    if (router.currentRoute.value.path.includes('/auth') || router.currentRoute.value.path === '/') {
+      await router.push({ name: 'Home' })
+    }
+    setValidated(true)
+  } catch (error) {
+    console.error(error)
+    await router.push('/auth/signin')
+    setValidated(true)
+  } finally {
+    loading.value = false
+  }
 }
 
-isAuthenticated()
+onMounted(async () => {
+  await isAuthenticated()
+})
 </script>
-

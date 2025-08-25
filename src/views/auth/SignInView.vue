@@ -16,7 +16,7 @@
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <!-- EMAIL -->
           <fieldset class="form-control">
-            <label class="input w-full">
+            <label class="input w-full rounded-full">
               <IconMail class="text-gray-500" />
               <input
                 v-model.trim="formData.email"
@@ -30,7 +30,7 @@
 
           <!-- PASSWORD -->
           <fieldset class="form-control">
-            <label class="input w-full relative">
+            <label class="input w-full relative rounded-full">
               <IconLock class="text-gray-500" />
               <input
                 v-model.trim="formData.password"
@@ -63,7 +63,7 @@
           <div class="form-control">
             <button
               type="submit"
-              class="btn bg-primary text-white hover:bg-primary/80 w-full shadow-none"
+              class="btn bg-primary text-white hover:bg-primary/80 w-full shadow-none rounded-full"
               :disabled="isLoading"
             >
               <span
