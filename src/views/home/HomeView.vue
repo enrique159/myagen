@@ -71,23 +71,15 @@ const userProfile = computed(() => {
 const logout = async () => {
   await signOut()
   setValidated(false)
-  
-  // Limpiar localStorage y sessionStorage
-  sessionStorage.clear()
-  
-  // Limpiar caches de la PWA
-  if ('caches' in window) {
-    try {
-      const cacheNames = await caches.keys()
-      await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)))
-    } catch (error) {
-      console.error('Error al limpiar caches:', error)
-    }
-  }
-  
+
   // Desregistrar service worker
   if ('serviceWorker' in navigator) {
     try {
+      caches.keys().then(function(cacheNames) {
+        cacheNames.forEach(function(cacheName) {
+          caches.delete(cacheName);
+        });
+      });
       const registrations = await navigator.serviceWorker.getRegistrations()
       await Promise.all(registrations.map(registration => registration.unregister()))
     } catch (error) {
