@@ -61,7 +61,6 @@ import { useApp } from '@/composables/useApp';
 import { IconSettings, IconUser, IconLogout } from '@tabler/icons-vue';
 import { computed } from 'vue';
 
-
 const { user, signOut } = useUser()
 const { setValidated } = useApp()
 
@@ -69,9 +68,34 @@ const userProfile = computed(() => {
   return user.value?.profileImageUrl || '/avatar.png'
 })
 
-const logout = () => {
-  signOut()
+const logout = async () => {
+  await signOut()
   setValidated(false)
+  
+  // Limpiar localStorage y sessionStorage
+  sessionStorage.clear()
+  
+  // Limpiar caches de la PWA
+  if ('caches' in window) {
+    try {
+      const cacheNames = await caches.keys()
+      await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)))
+    } catch (error) {
+      console.error('Error al limpiar caches:', error)
+    }
+  }
+  
+  // Desregistrar service worker
+  if ('serviceWorker' in navigator) {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations()
+      await Promise.all(registrations.map(registration => registration.unregister()))
+    } catch (error) {
+      console.error('Error al desregistrar service worker:', error)
+    }
+  }
+  
+  // Recargar la página para asegurar que todos los cambios surtan efecto
   window.location.reload()
 }
 </script>
