@@ -85,7 +85,7 @@
                 role="button"
                 class="btn btn-xs btn-circle btn-ghost text-base-300"
               >
-                <IconPlus :size="16" />
+                <IconHash :size="16" />
               </div>
               <ul
                 tabindex="0"
@@ -211,9 +211,7 @@
                 </div>
                 <!-- NEW TASK -->
                 <div class="flex gap-2">
-                  <div
-                    class="w-4 h-4 aspect-square mt-[2px]"
-                  />
+                  <IconPlus class="text-base-300 mt-[1px]" size="18" />
                   <input
                     v-model="newTaskInput"
                     class="w-full placeholder:text-base-300 border-none focus:outline-none"
@@ -248,7 +246,7 @@
                 createList({
                   elementId: element.id,
                   type: TodoListType.NOTE,
-                  order: element.lists.length + 1,
+                  order: element.lists?.length ? element.lists.length + 1 : 1,
                 })
               "
             >
@@ -260,7 +258,7 @@
                 createList({
                   elementId: element.id,
                   type: TodoListType.TODO,
-                  order: element.lists.length + 1,
+                  order: element.lists?.length ? element.lists.length + 1 : 1,
                 })
               "
             >
@@ -345,6 +343,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconDots,
+  IconHash,
   IconListCheck,
   IconMinus,
   IconNote,

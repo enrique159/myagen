@@ -185,7 +185,12 @@ export const useElementStore = defineStore('element', () => {
   // NOTES
   const addElementList = (elementId: string, list: TodoList) => {
     const index = elements.value.findIndex((element) => element.id === elementId)
-    elements.value[index]?.lists?.push(list)
+    if (index !== -1) {
+      if (!elements.value[index]!.lists) {
+        elements.value[index]!.lists = []
+      }
+      elements.value[index]!.lists.push(list)
+    }
   }
 
   const createList = async (payload: ICreateTodoListPayload) => {

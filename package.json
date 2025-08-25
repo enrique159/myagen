@@ -6,7 +6,8 @@
   "author": "Enrique Marin",
   "license": "MIT",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --mode dev",
+    "dev:local": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview"
   },
