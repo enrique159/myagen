@@ -60,9 +60,7 @@ import { useUser } from '@/composables/useUser';
 import { useApp } from '@/composables/useApp';
 import { IconSettings, IconUser, IconLogout } from '@tabler/icons-vue';
 import { computed } from 'vue';
-import { useRouter } from 'vue-router';
 
-const router = useRouter()
 
 const { user, signOut } = useUser()
 const { setValidated } = useApp()
@@ -74,7 +72,7 @@ const userProfile = computed(() => {
 const logout = () => {
   signOut()
   setValidated(false)
-  router.push('/auth/signin')
+  window.location.reload()
 }
 </script>
 
