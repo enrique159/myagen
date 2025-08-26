@@ -33,6 +33,12 @@ export const getElements = async (params: IGetElementsParams): Promise<Response<
   return response
 }
 
+export const searchElements = async (params: { query: string }): Promise<Response<Element[]>> => {
+  const url = Routes.searchElements(env.apiBase)
+  const response = await http.get<null, Element[]>(url, { params: { ...params } })
+  return response
+}
+
 export const deleteElement = async (elementId: string): Promise<Response<Element>> => {
   const url = Routes.deleteElement(env.apiBase, elementId)
   const response = await http.delete<null, Element>(url)

@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto w-full max-w-xl px-6">
+  <div class="mx-auto w-full max-w-xl px-6 overflow-auto">
     <div class="w-full flex justify-between items-center">
       <!-- PREVIOUS DAY  -->
       <button class="btn btn-circle btn-ghost text-base-content/40" @click="previousDay">
@@ -24,7 +24,11 @@
     </div>
 
     <div class="flex flex-col gap-4">
+      <div v-if="isSearching" class="flex flex-col gap-4">
+        <div v-for="i in 3" :key="i" class="skeleton h-32 w-full bg-gray-500/10 rounded-3xl"></div>
+      </div>
       <div
+        v-else
         v-for="element in sortedElements"
         :key="element.id"
         class="card bg-base-100 rounded-3xl"
@@ -95,10 +99,11 @@
                 <input
                   type="text"
                   placeholder="Buscar"
+                  v-model="searchTag"
                   class="input input-sm bg-base-200 border-none focus:outline-none w-full mb-2"
                 />
                 <li
-                  v-for="tag in tags"
+                  v-for="tag in filteredTags"
                   :key="tag.id"
                   @click="addTagsToElement(element.id, [tag.id])"
                 >
@@ -381,6 +386,7 @@ const showToday = computed(() => {
 
 const { formatDate, isToday, formatAssignedDate, formatDatetimeShort } = useDate()
 const {
+  isSearching,
   elements,
   getElements,
   createElement,
@@ -398,6 +404,14 @@ const {
   updateTask,
   deleteTask,
 } = useElement()
+
+const searchTag = ref('')
+
+const filteredTags = computed(() => {
+  return tags.value.filter((tag) => {
+    return tag.name.toLowerCase().includes(searchTag.value.toLowerCase())
+  })
+})
 
 const sortedElements = computed(() => {
   return [...elements.value].sort((a, b) => {

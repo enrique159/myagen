@@ -24,6 +24,8 @@
         type="text"
         id="search-input"
         placeholder="Buscar"
+        v-model="searchQuery"
+        @input="handleSearchChange"
         class="text-base-content placeholder:text-base-300 w-full outline-none"
       />
     </label>
@@ -227,9 +229,12 @@ import type {
 } from '@/app/modules/projects/domain/project'
 import { isColorDark } from '@/utils/colors'
 import { PROJECT_COLORS } from '@/constants/colors'
+import { useElement } from '@/composables/useElement'
+import { useDate } from '@/composables/useDate'
 
 const { isDark } = useTheme()
 const { dateCalendar, setDateCalendar } = useApp()
+const { formatAssignedDate } = useDate()
 
 const date = computed({
   get: () => dateCalendar.value,
@@ -380,6 +385,42 @@ const createNewProject = () => {
       isLoadingCreateProject.value = false
       showCreateProjectModal.value = false
     })
+}
+
+// SEARCH
+const { searchElements, isSearching, getElements } = useElement()
+
+const searchQuery = ref('')
+const searchTimeout = ref<number | null>(null)
+const handleSearchChange = () => {
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value)
+  }
+
+  isSearching.value = true
+  searchTimeout.value = setTimeout(() => {
+    if (searchQuery.value.trim() !== '') {
+      searchElements({ query: searchQuery.value })
+        .catch((error) => {
+          handleFetchErrors(error)
+        })
+        .finally(() => {
+          isSearching.value = false
+        })
+    } else {
+      getElements({
+        projectId: currentProject.value?.id,
+        assignedDate: formatAssignedDate(dateCalendar.value),
+      })
+        .catch((error) => {
+          handleFetchErrors(error)
+        })
+        .finally(() => {
+          isSearching.value = false
+        })
+    }
+    searchTimeout.value = null
+  }, 1000) as unknown as number
 }
 </script>
 

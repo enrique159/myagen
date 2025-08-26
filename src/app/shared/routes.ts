@@ -22,6 +22,7 @@ const updateElement = (baseUrl: string, elementId: string) =>
 const getElement = (baseUrl: string, elementId: string) =>
   `${finishSlash(baseUrl)}elements/${elementId}`
 const getElements = (baseUrl: string) => `${finishSlash(baseUrl)}elements`
+const searchElements = (baseUrl: string) => `${finishSlash(baseUrl)}elements/search`
 const deleteElement = (baseUrl: string, elementId: string) =>
   `${finishSlash(baseUrl)}elements/${elementId}`
 const addTags = (baseUrl: string, elementId: string) =>
@@ -62,6 +63,7 @@ export default {
   updateElement,
   getElement,
   getElements,
+  searchElements,
   deleteElement,
   addTags,
   removeTags,

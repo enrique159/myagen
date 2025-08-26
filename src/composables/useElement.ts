@@ -4,10 +4,20 @@ import type { ICreateTaskPayload, IUpdateTaskPayload } from '@/app/modules/tasks
 import type { ICreateTodoListPayload, IUpdateTodoListPayload } from '@/app/modules/todo-lists/domain/todo-list'
 import { useElementStore } from '@/stores/elementStore'
 import { storeToRefs } from 'pinia'
+import { computed, ref } from 'vue'
+
+const isLoadingSearch = ref(false)
 
 export const useElement = () => {
   const elementStore = useElementStore()
   const { elements, tags } = storeToRefs(elementStore)
+
+  const isSearching = computed({
+    get: () => isLoadingSearch.value,
+    set: (value) => {
+      isLoadingSearch.value = value
+    },
+  })
 
   // Mutations
   function removeElement(elementId: string) {
@@ -33,6 +43,10 @@ export const useElement = () => {
 
   function getElements(params: IGetElementsParams) {
     return elementStore.getElements(params)
+  }
+
+  function searchElements(params: { query: string }) {
+    return elementStore.searchElements(params)
   }
 
   function deleteElement(elementId: string) {
@@ -91,7 +105,9 @@ export const useElement = () => {
     createElement,
     updateElement,
     getElements,
+    searchElements,
     deleteElement,
+    isSearching,
     // TAGS
     tags,
     createTag,

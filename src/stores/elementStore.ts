@@ -10,6 +10,7 @@ import {
   createElement as createElementUseCase,
   updateElement as updateElementUseCase,
   getElements as getElementsUseCase,
+  searchElements as searchElementsUseCase,
   deleteElement as deleteElementUseCase,
   addTags as addTagsUseCase,
   removeTags as removeTagsUseCase,
@@ -75,6 +76,17 @@ export const useElementStore = defineStore('element', () => {
 
   const getElements = async (params: IGetElementsParams) => {
     const action = await getElementsUseCase(params)
+      .then((response) => {
+        setElements(response.data)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    return action
+  }
+
+  const searchElements = async (params: { query: string }) => {
+    const action = await searchElementsUseCase(params)
       .then((response) => {
         setElements(response.data)
       })
@@ -323,6 +335,7 @@ export const useElementStore = defineStore('element', () => {
     createElement,
     updateElement,
     getElements,
+    searchElements,
     deleteElement,
     // TAGS
     tags,
