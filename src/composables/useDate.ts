@@ -24,6 +24,15 @@ export const useDate = () => {
       .format('dddd, D [de] MMMM [de] YYYY hh:mm:ss a')
   }
 
+  const formatDatetimeShort = (date: string | Date | undefined) => {
+    if (!date) return ''
+    return dayjs
+      .utc(date)
+      .tz(tz)
+      .locale('es')
+      .format('D [de] MMM hh:mm a')
+  }
+
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return ''
     return dayjs
@@ -50,6 +59,7 @@ export const useDate = () => {
   return {
     getCurrentDate,
     formatDatetime,
+    formatDatetimeShort,
     formatDate,
     formatAssignedDate,
     isToday,

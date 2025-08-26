@@ -245,7 +245,10 @@ export const useElementStore = defineStore('element', () => {
     if (elementIndex !== -1 && elements.value[elementIndex]?.lists) {
       const listIndex = elements.value[elementIndex].lists.findIndex((list) => list.id === listId)
       if (listIndex !== -1) {
-        elements.value[elementIndex]?.lists[listIndex]?.tasks?.push(task)
+        if (!elements.value[elementIndex]?.lists[listIndex]?.tasks) {
+          elements.value[elementIndex]!.lists[listIndex]!.tasks = []
+        }
+        elements.value[elementIndex]!.lists[listIndex]!.tasks!.push(task)
       }
     }
   }

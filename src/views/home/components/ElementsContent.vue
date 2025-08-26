@@ -2,7 +2,7 @@
   <div class="mx-auto w-full max-w-xl px-6">
     <div class="w-full flex justify-between items-center">
       <!-- PREVIOUS DAY  -->
-      <button class="btn btn-circle btn-ghost text-base-content/40">
+      <button class="btn btn-circle btn-ghost text-base-content/40" @click="previousDay">
         <IconChevronLeft />
       </button>
       <div>
@@ -18,7 +18,7 @@
         </p>
       </div>
       <!-- NEXT DAY -->
-      <button class="btn btn-circle btn-ghost text-base-content/40">
+      <button class="btn btn-circle btn-ghost text-base-content/40" @click="nextDay">
         <IconChevronRight />
       </button>
     </div>
@@ -128,7 +128,7 @@
             >
               <!-- NOTE TYPE -->
               <div
-                class="list-container px-3 pt-2 pb-1 hover:bg-gray-500/5 rounded-xl w-full transition-all duration-300 relative"
+                class="list-container px-3 pt-4 pb-1 hover:bg-gray-500/5 rounded-xl w-full transition-all duration-300 relative"
                 v-if="list.type === TodoListType.NOTE"
               >
                 <textarea
@@ -154,17 +154,17 @@
 
               <!-- LIST  -->
               <div
-                class="list-container px-3 py-2 hover:bg-gray-500/5 rounded-xl w-full transition-all duration-300 relative flex flex-col"
+                class="list-container px-3 pb-2 pt-6 hover:bg-gray-500/5 rounded-xl w-full transition-all duration-300 relative flex flex-col"
                 v-if="list.type === TodoListType.TODO"
               >
                 <!-- TASKS -->
                 <div
                   v-for="task in list.tasks"
                   :key="`task-${task.id}`"
-                  class="flex gap-2 mb-2"
+                  class="flex gap-2 mb-2 task-container"
                 >
                   <div
-                    class="outline-2 border-2 border-base-100 rounded-full w-4 h-4 aspect-square cursor-pointer mt-[2px]"
+                    class="outline-2 border-2 border-base-100 rounded-full w-4 h-4 aspect-square cursor-pointer mt-[3px]"
                     :class="[ task.completed ? 'bg-info outline-info' : 'outline-base-300/50' ]"
                     @click="() => {
                       updateTask(
@@ -208,9 +208,12 @@
                     }"
                     rows="1"
                   />
+                  <button class="reminder-btn btn btn-ghost btn-xs btn-circle text-base-300 opacity-0 duration-300 transition-all hover:text-base-content">
+                    <IconAlarm size="18" />
+                  </button>
                 </div>
                 <!-- NEW TASK -->
-                <div class="flex gap-2">
+                <div class="flex items-center gap-2">
                   <IconPlus class="text-base-300 mt-[1px]" size="18" />
                   <input
                     v-model="newTaskInput"
@@ -239,7 +242,7 @@
             </div>
           </section>
 
-          <section class="flex items-center gap-4 w-full">
+          <section class="flex items-center gap-2 w-full">
             <button
               class="btn btn-ghost btn-sm text-info rounded-full hover:bg-base-200 hover:border-base-200"
               @click="
@@ -264,6 +267,10 @@
             >
               <IconListCheck size="18" /> Agregar lista
             </button>
+
+            <span class="text-xs text-base-300 ml-auto">
+              {{ formatDatetimeShort(element.createdAt) }}
+            </span>
           </section>
         </div>
       </div>
@@ -337,6 +344,7 @@
 import { useApp } from '@/composables/useApp'
 import { useDate } from '@/composables/useDate'
 import {
+  IconAlarm,
   IconArchive,
   IconCheck,
   IconChevronDown,
@@ -365,13 +373,13 @@ import {
 import type { Task } from '@/app/modules/tasks/domain/task'
 import TaskCompletedSound from '@/assets/task_completed.mp3'
 
-const { dateCalendar } = useApp()
+const { dateCalendar, nextDay, previousDay } = useApp()
 
 const showToday = computed(() => {
   return isToday(dateCalendar.value)
 })
 
-const { formatDate, isToday, formatAssignedDate } = useDate()
+const { formatDate, isToday, formatAssignedDate, formatDatetimeShort } = useDate()
 const {
   elements,
   getElements,
@@ -619,6 +627,10 @@ const soundEffect = () => {
 }
 
 .list-container:hover .delete-list-btn {
+  opacity: 1;
+}
+
+.task-container:hover .reminder-btn {
   opacity: 1;
 }
 </style>

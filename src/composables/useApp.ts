@@ -13,10 +13,20 @@ export const useApp = () => {
     appStore.setDateCalendar(val)
   }
 
+  const nextDay = () => {
+    setDateCalendar(new Date(dateCalendar.value.getTime() + 24 * 60 * 60 * 1000))
+  }
+
+  const previousDay = () => {
+    setDateCalendar(new Date(dateCalendar.value.getTime() - 24 * 60 * 60 * 1000))
+  }
+
   return {
     validated,
     setValidated,
     dateCalendar,
     setDateCalendar,
+    nextDay,
+    previousDay,
   }
 }
