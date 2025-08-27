@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import MainLayout from '@/layouts/MainLayout.vue'
 import homeRoutes from '../views/home/routes'
 import authRoutes from '../views/auth/routes'
+import profileRoutes from '../views/profile/routes'
 import { useApp } from '@/composables/useApp'
 import { useUser } from '@/composables/useUser'
 
@@ -16,6 +17,7 @@ const routes = [
     },
     children: [
       ...homeRoutes,
+      ...profileRoutes,
     ],
   },
 ]

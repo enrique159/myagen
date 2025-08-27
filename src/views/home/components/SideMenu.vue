@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 space-y-6 relative h-full">
+  <div v-show="isDesktop" class="p-6 space-y-6 relative h-full">
     <div class="flex items-center px-4">
       <img
         v-if="isDark"
@@ -233,12 +233,15 @@ import { isColorDark } from '@/utils/colors'
 import { PROJECT_COLORS } from '@/constants/colors'
 import { useElement } from '@/composables/useElement'
 import { useDate } from '@/composables/useDate'
+import { useBreakpoints } from '@/composables/useBreakpoints'
 import dayjs from 'dayjs'
+
 
 const { isDark } = useTheme()
 const { dateCalendar, setDateCalendar } = useApp()
 const { calendarElements, getCalendarElements } = useElement()
 const { formatAssignedDate, timezone } = useDate()
+const { isDesktop } = useBreakpoints()
 
 const date = computed({
   get: () => dateCalendar.value,

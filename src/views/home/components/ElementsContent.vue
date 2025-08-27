@@ -1,15 +1,15 @@
 <template>
-  <div class="mx-auto w-full max-w-xl px-6 overflow-auto">
+  <div class="mx-auto w-full max-w-xl px-4 overflow-auto">
     <div class="w-full flex justify-between items-center">
       <!-- PREVIOUS DAY  -->
       <button class="btn btn-circle btn-ghost text-base-content/40" @click="previousDay">
         <IconChevronLeft />
       </button>
       <div>
-        <p class="text-base-content font-semibold text-center mt-4">
+        <p class="text-base-content font-semibold text-center mt-4" :class="{ 'text-sm': isMobile }">
           {{ `${showToday ? 'Hoy, ' : ''}${formatDate(dateCalendar)}` }}
         </p>
-        <p class="text-base-content/60 text-center text-sm mb-4">
+        <p class="text-base-content/60 text-center text-sm mb-4" :class="{ 'text-xs': isMobile }">
           {{
             elements.length
               ? `${elements.length} elementos`
@@ -261,7 +261,8 @@
                 })
               "
             >
-              <IconNote size="18" /> Agregar nota
+              <IconNote size="18" />
+              <span v-if="!isMobile">Agregar nota</span>
             </button>
             <button
               class="btn btn-ghost btn-sm text-info rounded-full hover:bg-base-200 hover:border-base-200"
@@ -273,7 +274,8 @@
                 })
               "
             >
-              <IconListCheck size="18" /> Agregar lista
+              <IconListCheck size="18" />
+              <span v-if="!isMobile">Agregar lista</span>
             </button>
 
             <span class="text-xs text-base-300 ml-auto">
@@ -380,6 +382,9 @@ import {
 import type { Task } from '@/app/modules/tasks/domain/task'
 import TaskCompletedSound from '@/assets/task_completed.mp3'
 import TablerIcons from '@/plugins/tablerIcons'
+import { useBreakpoints } from '@/composables/useBreakpoints'
+
+const { isMobile } = useBreakpoints()
 
 const getProjectIcon = (iconName: string) => {
   if (iconName in TablerIcons) {

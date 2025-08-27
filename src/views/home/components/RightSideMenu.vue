@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 space-y-6 relative h-full">
+  <div v-show="isDesktop" class="p-6 space-y-6 relative h-full">
     <div class="dropdown dropdown-end w-full">
       <div
         tabindex="0"
@@ -28,10 +28,10 @@
         </li>
         <div class="divider my-0" />
         <li>
-          <a>
+          <router-link to="/profile">
             <IconUser size="16" />
             Mi cuenta
-          </a>
+          </router-link>
         </li>
         <li>
           <a>
@@ -55,9 +55,12 @@ import { useUser } from '@/composables/useUser';
 import { useApp } from '@/composables/useApp';
 import { IconSettings, IconUser, IconLogout } from '@tabler/icons-vue';
 import { computed } from 'vue';
+import { useBreakpoints } from '@/composables/useBreakpoints';
 
 const { user, signOut } = useUser()
 const { setValidated } = useApp()
+
+const { isDesktop } = useBreakpoints()
 
 const userProfile = computed(() => {
   return user.value?.profileImageUrl || '/avatar.png'
