@@ -11,6 +11,7 @@ import {
   updateElement as updateElementUseCase,
   getElements as getElementsUseCase,
   searchElements as searchElementsUseCase,
+  calendarElements as calendarElementsUseCase,
   deleteElement as deleteElementUseCase,
   addTags as addTagsUseCase,
   removeTags as removeTagsUseCase,
@@ -37,6 +38,7 @@ import type { ICreateTaskPayload, IUpdateTaskPayload, Task } from '@/app/modules
 
 export const useElementStore = defineStore('element', () => {
   const elements = ref<Element[]>([])
+  const calendarElements = ref<Array<Pick<Element, 'id' | 'title' | 'assignedDate'>>>([])
 
   const addElement = (element: Element) => {
     elements.value.push(element)
@@ -50,6 +52,10 @@ export const useElementStore = defineStore('element', () => {
     elements.value = elements.value.filter(
       (element) => element.id !== elementId,
     )
+  }
+
+  const setCalendarElements = (newCalendarElements: Array<Pick<Element, 'id' | 'title' | 'assignedDate'>>) => {
+    calendarElements.value = newCalendarElements
   }
 
   const createElement = async (payload: ICreateElementPayload) => {
@@ -89,6 +95,18 @@ export const useElementStore = defineStore('element', () => {
     const action = await searchElementsUseCase(params)
       .then((response) => {
         setElements(response.data)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    return action
+  }
+
+  const getCalendarElements = async (year: number, projectId?: string) => {
+    const action = await calendarElementsUseCase(year, projectId)
+      .then((response) => {
+        setCalendarElements(response.data)
+        return response
       })
       .catch((error) => {
         console.error(error)
@@ -337,6 +355,9 @@ export const useElementStore = defineStore('element', () => {
     getElements,
     searchElements,
     deleteElement,
+    // CALENDAR
+    calendarElements,
+    getCalendarElements,
     // TAGS
     tags,
     createTag,

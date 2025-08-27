@@ -23,6 +23,7 @@ const getElement = (baseUrl: string, elementId: string) =>
   `${finishSlash(baseUrl)}elements/${elementId}`
 const getElements = (baseUrl: string) => `${finishSlash(baseUrl)}elements`
 const searchElements = (baseUrl: string) => `${finishSlash(baseUrl)}elements/search`
+const calendarElements = (baseUrl: string) => `${finishSlash(baseUrl)}elements/calendar`
 const deleteElement = (baseUrl: string, elementId: string) =>
   `${finishSlash(baseUrl)}elements/${elementId}`
 const addTags = (baseUrl: string, elementId: string) =>
@@ -65,6 +66,7 @@ export default {
   getElements,
   searchElements,
   deleteElement,
+  calendarElements,
   addTags,
   removeTags,
   // TAGS ROUTES

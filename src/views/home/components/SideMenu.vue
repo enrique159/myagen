@@ -32,10 +32,12 @@
 
     <DatePicker
       v-model="date"
+      :markers="elementMarkers"
       inline
       auto-apply
       :dark="isDark"
       :enable-time-picker="false"
+      :timezone="timezone"
       locale="es-MX"
     />
 
@@ -221,7 +223,7 @@ import { useApp } from '@/composables/useApp'
 import { useTheme } from '@/composables/useTheme'
 import TablerIcons from '@/plugins/tablerIcons'
 import { useProject } from '@/composables/useProject'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { handleFetchErrors } from '@/utils/handleFetchErrors'
 import type {
   ICreateProjectPayload,
@@ -231,10 +233,12 @@ import { isColorDark } from '@/utils/colors'
 import { PROJECT_COLORS } from '@/constants/colors'
 import { useElement } from '@/composables/useElement'
 import { useDate } from '@/composables/useDate'
+import dayjs from 'dayjs'
 
 const { isDark } = useTheme()
 const { dateCalendar, setDateCalendar } = useApp()
-const { formatAssignedDate } = useDate()
+const { calendarElements, getCalendarElements } = useElement()
+const { formatAssignedDate, timezone } = useDate()
 
 const date = computed({
   get: () => dateCalendar.value,
@@ -422,6 +426,34 @@ const handleSearchChange = () => {
     searchTimeout.value = null
   }, 1000) as unknown as number
 }
-</script>
 
-<style lang="scss" scoped></style>
+const elementMarkers = computed(() => {
+  return calendarElements.value.map((element) => {
+    return {
+      date: dayjs(element.assignedDate).add(1, 'day').format('YYYY-MM-DD'),
+      type: 'dot',
+      color: 'blue',
+    }
+  })
+})
+
+// CALENDAR
+const currentYear = ref(dateCalendar.value.getFullYear())
+const fetchCalendarElements = async () => {
+  await getCalendarElements(currentYear.value, currentProject.value?.id)
+    .catch((error) => {
+      handleFetchErrors(error)
+    })
+    .finally(() => {
+      console.log('Calendar elements fetched')
+    })
+}
+fetchCalendarElements()
+
+watch(dateCalendar, () => {
+  if (dateCalendar.value.getFullYear() !== currentYear.value) {
+    currentYear.value = dateCalendar.value.getFullYear()
+    fetchCalendarElements()
+  }
+})
+</script>

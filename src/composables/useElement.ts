@@ -10,7 +10,7 @@ const isLoadingSearch = ref(false)
 
 export const useElement = () => {
   const elementStore = useElementStore()
-  const { elements, tags } = storeToRefs(elementStore)
+  const { elements, tags, calendarElements } = storeToRefs(elementStore)
 
   const isSearching = computed({
     get: () => isLoadingSearch.value,
@@ -51,6 +51,11 @@ export const useElement = () => {
 
   function deleteElement(elementId: string) {
     return elementStore.deleteElement(elementId)
+  }
+
+  // CALENDAR
+  function getCalendarElements(year: number, projectId?: string) {
+    return elementStore.getCalendarElements(year, projectId)
   }
 
   // TAGS
@@ -108,6 +113,9 @@ export const useElement = () => {
     searchElements,
     deleteElement,
     isSearching,
+    // CALENDAR
+    calendarElements,
+    getCalendarElements,
     // TAGS
     tags,
     createTag,

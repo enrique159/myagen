@@ -43,6 +43,9 @@
               class="input input-ghost focus:outline-none w-full p-1 h-8 text-lg font-bold placeholder:text-base-300"
               placeholder="Escribe el titulo"
             />
+            <div v-if="element.project?.icon" class="tooltip tooltip-left" :data-tip="element.project?.name">
+              <component :is="getProjectIcon(element.project?.icon)" size="20" stroke-width="3" />
+            </div>
             <div class="dropdown dropdown-end">
               <div
                 tabindex="0"
@@ -53,7 +56,7 @@
               </div>
               <ul
                 tabindex="0"
-                class="dropdown-content menu bg-base-100 rounded-xl z-1 w-52 p-2 shadow-xl"
+                class="dropdown-content menu bg-base-100 rounded-xl z-1 w-52 p-2 shadow border border-base-content/20"
               >
                 <li>
                   <a> <IconArchive size="16" /> Archivar </a>
@@ -93,7 +96,7 @@
               </div>
               <ul
                 tabindex="0"
-                class="dropdown-content menu bg-base-100 border border-base-200 rounded-xl w-60 p-2 shadow-lg"
+                class="dropdown-content menu bg-base-100 rounded-xl w-60 p-2 shadow border border-base-content/20"
                 style="z-index: 40 !important"
               >
                 <input
@@ -377,6 +380,14 @@ import {
 } from '@/app/modules/todo-lists/domain/todo-list.d'
 import type { Task } from '@/app/modules/tasks/domain/task'
 import TaskCompletedSound from '@/assets/task_completed.mp3'
+import TablerIcons from '@/plugins/tablerIcons'
+
+const getProjectIcon = (iconName: string) => {
+  if (iconName in TablerIcons) {
+    return TablerIcons[iconName as keyof typeof TablerIcons]
+  }
+  return TablerIcons.IconCircle
+}
 
 const { dateCalendar, nextDay, previousDay } = useApp()
 

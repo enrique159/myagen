@@ -39,6 +39,12 @@ export const searchElements = async (params: { query: string }): Promise<Respons
   return response
 }
 
+export const calendarElements = async (year: number, projectId?: string): Promise<Response<Array<Pick<Element, 'id' | 'title' | 'assignedDate'>>>> => {
+  const url = Routes.calendarElements(env.apiBase)
+  const response = await http.get<null, Array<Pick<Element, 'id' | 'title' | 'assignedDate'>>>(url, { params: { year, projectId } })
+  return response
+}
+
 export const deleteElement = async (elementId: string): Promise<Response<Element>> => {
   const url = Routes.deleteElement(env.apiBase, elementId)
   const response = await http.delete<null, Element>(url)

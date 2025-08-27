@@ -2,6 +2,7 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/es'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
+import { computed } from 'vue'
 
 dayjs.locale('es')
 dayjs.extend(utc)
@@ -56,6 +57,10 @@ export const useDate = () => {
     return dayjs(date).isSame(dayjs(), 'day')
   }
 
+  const timezone = computed(() => {
+    return tz
+  })
+
   return {
     getCurrentDate,
     formatDatetime,
@@ -63,5 +68,6 @@ export const useDate = () => {
     formatDate,
     formatAssignedDate,
     isToday,
+    timezone,
   }
 }
