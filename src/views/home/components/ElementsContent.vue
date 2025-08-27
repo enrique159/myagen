@@ -56,11 +56,11 @@
               </div>
               <ul
                 tabindex="0"
-                class="dropdown-content menu bg-base-100 rounded-xl z-1 w-52 p-2 shadow border border-base-content/20"
+                class="dropdown-content menu bg-base-100 rounded-xl z-1 w-52 p-2 shadow-xl border border-base-content/20"
               >
-                <li>
+                <!-- <li>
                   <a> <IconArchive size="16" /> Archivar </a>
-                </li>
+                </li> -->
                 <li @click="fetchDeleteElement(element.id)">
                   <a class="text-red-400"> <IconTrash size="16" /> Eliminar </a>
                 </li>
@@ -96,7 +96,7 @@
               </div>
               <ul
                 tabindex="0"
-                class="dropdown-content menu bg-base-100 rounded-xl w-60 p-2 shadow border border-base-content/20"
+                class="dropdown-content menu bg-base-100 rounded-xl w-60 p-2 shadow-xl border border-base-content/20"
                 style="z-index: 40 !important"
               >
                 <input
@@ -353,7 +353,6 @@ import { useApp } from '@/composables/useApp'
 import { useDate } from '@/composables/useDate'
 import {
   IconAlarm,
-  IconArchive,
   IconCheck,
   IconChevronDown,
   IconChevronLeft,

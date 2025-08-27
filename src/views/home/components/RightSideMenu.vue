@@ -18,7 +18,7 @@
       </div>
       <ul
         tabindex="0"
-        class="menu dropdown-content bg-base-100 rounded-xl z-1 mt-3 w-52 p-2 shadow border border-base-content/20"
+        class="menu dropdown-content bg-base-100 rounded-xl z-1 mt-3 w-52 p-2 shadow-xl border border-base-content/20"
       >
         <li>
           <a class="flex justify-between">

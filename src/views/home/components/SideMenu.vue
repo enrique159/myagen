@@ -432,7 +432,7 @@ const elementMarkers = computed(() => {
     return {
       date: dayjs(element.assignedDate).add(1, 'day').format('YYYY-MM-DD'),
       type: 'dot',
-      color: 'blue',
+      color: 'orange',
     }
   })
 })
