@@ -50,7 +50,7 @@
           Todos
         </p>
         <p v-else class="text-lg font-semibold flex items-center gap-2" :style="{ color: currentProject?.color || PROJECT_COLORS.AZUL }">
-          <component :is="getProjectIcon(currentProject?.icon || 'IconCircle')" size="20" stroke-width="3" />
+          <component :is="getProjectIcon(currentProject?.icon || 'IconCircle')" size="20" stroke-width="2" />
           {{ currentProject?.name }}
         </p>
       </div>

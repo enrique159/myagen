@@ -44,7 +44,7 @@
               placeholder="Escribe el titulo"
             />
             <div v-if="element.project?.icon" class="tooltip tooltip-left" :data-tip="element.project?.name">
-              <component :is="getProjectIcon(element.project?.icon)" size="20" stroke-width="3" />
+              <component :is="getProjectIcon(element.project?.icon)" size="20" />
             </div>
             <div class="dropdown dropdown-end">
               <div
