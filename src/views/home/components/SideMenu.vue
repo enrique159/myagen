@@ -447,9 +447,6 @@ const fetchCalendarElements = async () => {
     .catch((error) => {
       handleFetchErrors(error)
     })
-    .finally(() => {
-      console.log('Calendar elements fetched')
-    })
 }
 fetchCalendarElements()
 

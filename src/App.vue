@@ -29,7 +29,6 @@ const isAuthenticated = async () => {
   loading.value = true
   try {
     const response = await check()
-    console.log(response)
     setUser(response.data)
     if (router.currentRoute.value.path.includes('/auth') || router.currentRoute.value.path === '/') {
       await router.push({ name: 'Home' })
