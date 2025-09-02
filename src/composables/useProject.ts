@@ -1,7 +1,9 @@
 import type { ICreateProjectPayload, IUpdateProjectPayload, Project } from '@/app/modules/projects/domain/project'
 import { useProjectStore } from '@/stores/projectStore'
 import { storeToRefs } from 'pinia'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+
+const showDrawer = ref(false)
 
 export const useProject = () => {
   const projectStore = useProjectStore()
@@ -9,10 +11,15 @@ export const useProject = () => {
 
   // Getter para saber si la seleccion es mostrar todo
   const isAllProjects = computed(() => !currentProject.value)
+  const showProjectsDrawer = computed(() => showDrawer.value)
 
   // Mutations
   function setCurrentProject(project: Project | null) {
     projectStore.currentProject = project
+  }
+
+  function toggleProjectsDrawer() {
+    showDrawer.value = !showDrawer.value
   }
 
   // Actions
@@ -34,6 +41,8 @@ export const useProject = () => {
 
   return {
     projects,
+    showProjectsDrawer,
+    toggleProjectsDrawer,
     currentProject,
     setCurrentProject,
     isAllProjects,

@@ -1,25 +1,50 @@
 <template>
-  <div class="fixed bottom-0 left-0 right-0 w-full h-16 bg-base-100">
-    <div class="grid grid-cols-5 gap-2 place-items-center h-full px-6">
-      <button v-for="option in menuOptions" :key="option.label" class="btn btn-circle btn-ghost text-base-300">
-        <component :is="option.icon" size="24" />
-      </button>
-      <div class="btn btn-sm btn-ghost btn-circle avatar" @click="goToProfile">
-        <div class="rounded-full">
-          <img alt="Perfil" :src="userProfile" />
+  <Transition name="bottom-menu">
+    <div v-if="isHomePage" class="fixed bottom-6 w-[90%] left-[5%] rounded-3xl h-16 bg-base-100 bottom-menu">
+      <div class="grid grid-cols-4 gap-2 place-items-center h-full px-4">
+        <!-- BUSCAR -->
+        <button 
+          class="btn btn-circle btn-ghost text-base-300"
+          @click="handleSearch"
+        >
+          <component :is="IconSearch" size="24" />
+        </button>
+        <!-- CALENDARIO -->
+        <button 
+          class="btn btn-circle btn-ghost text-base-300"
+          @click="handleCalendar"
+        >
+          <component :is="IconCalendarWeek" size="24" />
+        </button>
+        <!-- PROYECTOS -->
+        <button 
+          class="btn btn-circle btn-ghost text-base-300"
+          @click="toggleProjectsDrawer"
+        >
+          <component :is="IconFolderOpen" size="24" />
+        </button>
+        <!-- PERFIL -->
+        <div class="btn btn-sm btn-ghost btn-circle avatar" @click="goToProfile">
+          <div class="rounded-full">
+            <img alt="Perfil" :src="userProfile" />
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
-import { IconCalendarWeek, IconFolderOpen, IconRocket, IconSearch } from '@tabler/icons-vue'
+import { IconCalendarWeek, IconFolderOpen, IconSearch } from '@tabler/icons-vue'
 import { useUser } from '@/composables/useUser'
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { useProject } from '@/composables/useProject'
 
 const router = useRouter()
+const route = useRoute()
+
+const isHomePage = computed(() => route.name === 'Home')
 
 const { user } = useUser()
 
@@ -27,38 +52,59 @@ const userProfile = computed(() => {
   return user.value?.profileImageUrl || '/avatar.png'
 })
 
-const menuOptions = [
-  {
-    icon: IconRocket,
-    label: 'Inicio',
-    action: () => {
-      console.log('Inicio')
-    }
-  },
-  {
-    icon: IconSearch,
-    label: 'Buscar',
-    action: () => {
-      console.log('Buscar')
-    }
-  },
-  {
-    icon: IconCalendarWeek,
-    label: 'Calendario',
-    action: () => {
-      console.log('Calendario')
-    }
-  },
-  {
-    icon: IconFolderOpen,
-    label: 'Proyectos',
-    action: () => {
-      console.log('Proyectos')
-    }
-  },
-]
+const handleSearch = () => {
+  console.log('Buscar')
+}
+
+const handleCalendar = () => {
+  console.log('Calendario')
+}
+
+// PROJECTS
+const { toggleProjectsDrawer } = useProject()
 
 const goToProfile = () => {
   router.push('/profile')
 }
 </script>
+
+<style scoped>
+.bottom-menu {
+  z-index: 10;
+  box-shadow: 0px 8px 10px 5px rgba(0, 0, 0, 0.05);
+}
+
+.bottom-menu-enter-active {
+  animation: enterBottomMenu 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); /* Bounce effect */
+}
+
+.bottom-menu-leave-active {
+  animation: leaveBottomMenu 0.3s ease-in;
+}
+
+@keyframes enterBottomMenu {
+  0% {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-10px); /* Slight overshoot for bounce effect */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes leaveBottomMenu {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+}
+</style>
