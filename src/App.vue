@@ -20,7 +20,7 @@ import { useTheme } from './composables/useTheme'
 import { useApp } from './composables/useApp'
 
 const router = useRouter()
-const { setUser } = useUser()
+const { setUser, setToken } = useUser()
 const { setValidated, validated } = useApp()
 
 useTheme()
@@ -29,6 +29,7 @@ const isAuthenticated = async () => {
   loading.value = true
   try {
     const response = await check()
+    console.log(response)
     setUser(response.data)
     if (router.currentRoute.value.path.includes('/auth') || router.currentRoute.value.path === '/') {
       await router.push({ name: 'Home' })
@@ -36,6 +37,7 @@ const isAuthenticated = async () => {
     setValidated(true)
   } catch (error) {
     console.error(error)
+    setToken('')
     await router.push('/auth/signin')
     setValidated(true)
   } finally {

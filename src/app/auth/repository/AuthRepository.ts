@@ -1,6 +1,6 @@
 import Http from '@/app/network/Http'
 import Routes from '@/app/shared/routes'
-import { type ISignInPayload, type ISignInResponse } from '../domain/auth.d'
+import { type ISignInPayload, type ISignInResponse, type UserAuth } from '../domain/auth.d'
 import { type Response } from '@/app/network/domain/interfaces'
 import env from '@/app/shared/env'
 
@@ -22,8 +22,8 @@ export const signOut = async (): Promise<Response<string>> => {
   return response
 }
 
-export const check = async (): Promise<Response<ISignInResponse>> => {
+export const check = async (): Promise<Response<UserAuth>> => {
   const url = Routes.check(env.apiBase)
-  const response = await http.get<null, ISignInResponse>(url)
+  const response = await http.get<null, UserAuth>(url)
   return response
 }

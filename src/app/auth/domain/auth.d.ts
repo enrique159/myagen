@@ -6,6 +6,11 @@ export interface ISignInPayload {
 }
 
 export interface ISignInResponse {
+  user: UserAuth,
+  token: string
+}
+
+export interface UserAuth {
   id: UUID
   email: string
   name: string

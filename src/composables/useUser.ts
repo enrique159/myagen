@@ -1,4 +1,4 @@
-import type { ISignInPayload, ISignInResponse } from '@/app/auth/domain/auth'
+import type { ISignInPayload, UserAuth } from '@/app/auth/domain/auth'
 import type { ICreateUserPayload } from '@/app/modules/users/domain/user'
 import { useUserStore } from '@/stores/userStore'
 import { storeToRefs } from 'pinia'
@@ -12,8 +12,11 @@ export const useUser = () => {
   const isLoggedIn = computed(() => user.value !== null)
 
   // Functions
-  function setUser(user: ISignInResponse) {
+  function setUser(user: UserAuth) {
     userStore.setUser(user)
+  }
+  function setToken(token: string) {
+    userStore.setToken(token)
   }
 
   // Actions
@@ -33,6 +36,7 @@ export const useUser = () => {
     isLoggedIn,
 
     setUser,
+    setToken,
     signIn,
     signOut,
     signUp,

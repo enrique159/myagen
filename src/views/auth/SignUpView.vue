@@ -167,8 +167,6 @@ import notify from '@/utils/notifications'
 import { samePassword } from '@/utils/validators'
 import { useUser } from '@/composables/useUser'
 import { useRouter } from 'vue-router'
-import type { Response } from '@/app/network/domain/interfaces'
-import type { ISignInResponse } from '@/app/auth/domain/auth'
 import type { ICreateUserPayload } from '@/app/modules/users/domain/user'
 import ToggleTheme from '@/components/ToggleTheme.vue'
 import { useTheme } from '@/composables/useTheme'
@@ -281,7 +279,7 @@ const rules = {
 
 const v$ = useVuelidate(rules, formData)
 
-const { signUp, setUser } = useUser()
+const { signUp } = useUser()
 const handleSubmit = async () => {
   const isFormValid = await v$.value.$validate()
   if (!isFormValid)
@@ -296,8 +294,7 @@ const handleSubmit = async () => {
 
   isLoading.value = true
   await signUp(createUserPayload)
-    .then((response: Response<ISignInResponse>) => {
-      setUser(response.data)
+    .then(() => {
       router.push({ name: 'Home' })
     })
     .catch((error) => handleFetchErrors(error))

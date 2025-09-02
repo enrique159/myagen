@@ -14,15 +14,17 @@ import {
 } from '../shared/enums/networkStatusCode'
 
 const TIME_OUT = 10000
-const WITH_CREDENTIALS = true
+const WITH_CREDENTIALS = false
 
 export default class Http implements IHttp {
   private axios!: AxiosInstance
 
   private requestHeaders = (headers: RawAxiosRequestHeaders) => {
+    const token = localStorage.getItem('myagen-token')
     return {
       Accept: 'application/json',
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     }
   }
