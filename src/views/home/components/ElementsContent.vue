@@ -58,6 +58,9 @@
                 tabindex="0"
                 class="dropdown-content menu bg-base-100 rounded-xl z-1 w-52 p-2 shadow-xl border border-base-content/20"
               >
+                <li @click="handleSelectProject(element.id)">
+                  <a> <IconFolderOpen size="16" /> Cambiar a proyecto </a>
+                </li>
                 <li @click="moveElementToToday(element.id)">
                   <a> <IconCalendarDot size="16" /> Mover a hoy </a>
                 </li>
@@ -348,6 +351,28 @@
       <span>Guardar</span>
     </button>
   </basic-modal>
+
+  <basic-modal v-model="showSelectProjectModal" title="Proyectos">
+    <div class="flex flex-col w-full gap-4">
+      <div class="grid grid-cols-2 gap-2 pb-6">
+        <button
+          v-for="project in projects"
+          :key="project.id"
+          class="btn btn-soft border-none rounded-full"
+          :class="[
+            isColorDark(project.color || '#ccc')
+              ? 'text-gray-900'
+              : 'text-gray-100',
+          ]"
+          :style="{ backgroundColor: project.color || '#ccc' }"
+          @click="changeProject(selectedElementId, project.id)"
+        >
+          <component v-if="project.icon" :is="getProjectIcon(project.icon)" />
+          {{ project.name }}
+        </button>
+      </div>
+    </div>
+  </basic-modal>
 </template>
 
 <script setup lang="ts">
@@ -361,6 +386,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconDots,
+  IconFolderOpen,
   IconHash,
   IconListCheck,
   IconMinus,
@@ -385,6 +411,7 @@ import TaskCompletedSound from '@/assets/task_completed.mp3'
 import TablerIcons from '@/plugins/tablerIcons'
 import { useBreakpoints } from '@/composables/useBreakpoints'
 import notify from '@/utils/notifications'
+import { isColorDark } from '@/utils/colors'
 
 const { isMobile } = useBreakpoints()
 
@@ -437,7 +464,7 @@ const sortedElements = computed(() => {
   })
 })
 
-const { currentProject } = useProject()
+const { currentProject, projects } = useProject()
 watch([() => currentProject.value, () => dateCalendar.value], () => {
   fetchElements()
 })
@@ -494,6 +521,30 @@ const moveElementToToday = async (elementId: string) => {
     })
     .catch((error) => {
       handleFetchErrors(error)
+    })
+}
+
+// CHANGE PROJECT ELEMENT
+const showSelectProjectModal = ref(false)
+const selectedElementId = ref('')
+
+const handleSelectProject = (elementId: string) => {
+  selectedElementId.value = elementId
+  showSelectProjectModal.value = true
+}
+
+const changeProject = async (elementId: string, projectId: string) => {
+  await updateElement(elementId, { projectId })
+    .then(() => {
+      notify.success('Elemento movido a proyecto')
+      fetchElements()
+    })
+    .catch((error) => {
+      handleFetchErrors(error)
+    })
+    .finally(() => {
+      showSelectProjectModal.value = false
+      selectedElementId.value = ''
     })
 }
 
