@@ -8,6 +8,7 @@ const signOut = (baseUrl: string) => `${finishSlash(baseUrl)}auth/signout`
 const check = (baseUrl: string) => `${finishSlash(baseUrl)}auth/check`
 // USERS ROUTES
 const signUp = (baseUrl: string) => `${finishSlash(baseUrl)}users`
+const updateUser = (baseUrl: string) => `${finishSlash(baseUrl)}users`
 // PROJECTS ROUTES
 const createProject = (baseUrl: string) => `${finishSlash(baseUrl)}projects`
 const updateProject = (baseUrl: string, projectId: string) =>
@@ -54,6 +55,7 @@ export default {
   check,
   // USERS ROUTES
   signUp,
+  updateUser,
   // PROJECTS ROUTES
   createProject,
   updateProject,

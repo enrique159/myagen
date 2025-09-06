@@ -1,5 +1,5 @@
 import type { ISignInPayload, UserAuth } from '@/app/auth/domain/auth'
-import type { ICreateUserPayload } from '@/app/modules/users/domain/user'
+import type { ICreateUserPayload, IUpdateUserPayload } from '@/app/modules/users/domain/user'
 import { useUserStore } from '@/stores/userStore'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
@@ -29,6 +29,9 @@ export const useUser = () => {
   async function signUp(payload: ICreateUserPayload) {
     return userStore.signUp(payload)
   }
+  async function updateUser(payload: IUpdateUserPayload) {
+    return userStore.updateUser(payload)
+  }
 
   return {
     user,
@@ -40,5 +43,6 @@ export const useUser = () => {
     signIn,
     signOut,
     signUp,
+    updateUser,
   }
 }

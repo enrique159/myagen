@@ -28,3 +28,9 @@ export interface ICreateUserPayload {
   email: string
   password: string
 }
+
+export interface IUpdateUserPayload {
+  name?: string
+  lastName?: string
+  password?: string
+}

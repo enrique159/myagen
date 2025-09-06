@@ -4,12 +4,12 @@ import {
   signIn as signInUseCase,
   signOut as signoutUseCase,
 } from '@/app/auth/repository/AuthRepository'
-import { signUp as signUpUseCase } from '@/app/modules/users/repository/UsersRepository'
+import { signUp as signUpUseCase, updateUser as updateUserUseCase } from '@/app/modules/users/repository/UsersRepository'
 import {
   type ISignInPayload,
   type UserAuth,
 } from '@/app/auth/domain/auth.d'
-import { type ICreateUserPayload } from '@/app/modules/users/domain/user.d'
+import { type ICreateUserPayload, type IUpdateUserPayload } from '@/app/modules/users/domain/user.d'
 import { useLocalStorage } from '@vueuse/core'
 
 export const useUserStore = defineStore('user', () => {
@@ -65,6 +65,21 @@ export const useUserStore = defineStore('user', () => {
     return action
   }
 
+  async function updateUser(payload: IUpdateUserPayload) {
+    const action = await updateUserUseCase(payload)
+      .then((response) => {
+        if (user.value) {
+          user.value.name = response.data.name ? response.data.name : user.value.name
+          user.value.lastName = response.data.lastName ? response.data.lastName : user.value.lastName
+        }
+        return response
+      })
+      .catch((error) => {
+        throw error
+      })
+    return action
+  }
+
   return {
     user,
     getUser,
@@ -73,5 +88,6 @@ export const useUserStore = defineStore('user', () => {
     signIn,
     signOut,
     signUp,
+    updateUser,
   }
 })
