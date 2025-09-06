@@ -20,7 +20,7 @@
         <button 
           class="btn btn-circle border-none"
           :class="[
-            currentProject ? [ isColorDark(currentProject.color || '#ccc') ? 'text-black' : 'text-white' ] : 'btn-ghost',
+            currentProject ? [ isColorDark(currentProject.color || '#ccc') ? 'text-black' : 'text-white' ] : 'btn-ghost text-base-300',
           ]"
           :style="[
             currentProject ? { 'background-color': currentProject.color || '#ccc' } : {}
