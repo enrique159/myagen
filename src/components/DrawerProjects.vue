@@ -26,7 +26,7 @@
           {{ project.name }}
         </button>
 
-        <button class="btn btn-ghost text-info border-none rounded-xl">
+        <button class="btn btn-ghost text-info border-none rounded-xl" @click="handleShowAllProjects">
           mostrar todo
         </button>
       </div>
@@ -56,6 +56,11 @@ const getProjectIcon = (iconName: string) => {
 
 const handleSelectProject = (project: Project | null) => {
   setCurrentProject(project)
+  toggleProjectsDrawer()
+}
+
+const handleShowAllProjects = () => {
+  setCurrentProject(null)
   toggleProjectsDrawer()
 }
 </script>

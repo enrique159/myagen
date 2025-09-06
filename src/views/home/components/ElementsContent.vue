@@ -299,6 +299,8 @@
           <IconPlus />
         </button>
       </div>
+
+      <div v-if="isMobile" class="mb-24"></div>
     </div>
   </div>
 

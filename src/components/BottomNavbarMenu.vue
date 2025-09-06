@@ -18,10 +18,16 @@
         </button>
         <!-- PROYECTOS -->
         <button 
-          class="btn btn-circle btn-ghost text-base-300"
+          class="btn btn-circle border-none"
+          :class="[
+            currentProject ? [ isColorDark(currentProject.color || '#ccc') ? 'text-black' : 'text-white' ] : 'btn-ghost',
+          ]"
+          :style="[
+            currentProject ? { 'background-color': currentProject.color || '#ccc' } : {}
+          ]"
           @click="toggleProjectsDrawer"
         >
-          <component :is="IconFolderOpen" size="24" />
+          <component :is="currentProjectIcon" size="24" />
         </button>
         <!-- PERFIL -->
         <div class="btn btn-sm btn-ghost btn-circle avatar" @click="goToProfile">
@@ -40,6 +46,8 @@ import { useUser } from '@/composables/useUser'
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useProject } from '@/composables/useProject'
+import * as TablerIcons from '@tabler/icons-vue'
+import { isColorDark } from '@/utils/colors'
 
 const router = useRouter()
 const route = useRoute()
@@ -61,7 +69,17 @@ const handleCalendar = () => {
 }
 
 // PROJECTS
-const { toggleProjectsDrawer } = useProject()
+const getProjectIcon = (iconName: string) => {
+  if (iconName in TablerIcons) {
+    return TablerIcons[iconName as keyof typeof TablerIcons]
+  }
+  return TablerIcons.IconCircle
+}
+
+const { currentProject, toggleProjectsDrawer } = useProject()
+const currentProjectIcon = computed(() => {
+  return currentProject.value?.icon ? getProjectIcon(currentProject.value.icon) : IconFolderOpen
+})
 
 const goToProfile = () => {
   router.push('/profile')
