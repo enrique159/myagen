@@ -58,9 +58,9 @@
                 tabindex="0"
                 class="dropdown-content menu bg-base-100 rounded-xl z-1 w-52 p-2 shadow-xl border border-base-content/20"
               >
-                <!-- <li>
-                  <a> <IconArchive size="16" /> Archivar </a>
-                </li> -->
+                <li @click="moveElementToToday(element.id)">
+                  <a> <IconCalendarDot size="16" /> Mover a hoy </a>
+                </li>
                 <li @click="fetchDeleteElement(element.id)">
                   <a class="text-red-400"> <IconTrash size="16" /> Eliminar </a>
                 </li>
@@ -355,6 +355,7 @@ import { useApp } from '@/composables/useApp'
 import { useDate } from '@/composables/useDate'
 import {
   IconAlarm,
+  IconCalendarDot,
   IconCheck,
   IconChevronDown,
   IconChevronLeft,
@@ -383,6 +384,7 @@ import type { Task } from '@/app/modules/tasks/domain/task'
 import TaskCompletedSound from '@/assets/task_completed.mp3'
 import TablerIcons from '@/plugins/tablerIcons'
 import { useBreakpoints } from '@/composables/useBreakpoints'
+import notify from '@/utils/notifications'
 
 const { isMobile } = useBreakpoints()
 
@@ -409,6 +411,7 @@ const {
   addTagsToElement,
   removeTagsFromElement,
   updateElement,
+  getCalendarElements,
   tags,
   getTags,
   createTag,
@@ -481,6 +484,19 @@ const handleTitleChange = (element: Element) => {
   }, 2000) as unknown as number
 }
 
+// UPDATE ASSIGNED DATE ELEMENT
+const moveElementToToday = async (elementId: string) => {
+  await updateElement(elementId, { assignedDate: new Date() })
+    .then(() => {
+      notify.success('Elemento movido a hoy')
+      fetchElements()
+      fetchCalendarElements()
+    })
+    .catch((error) => {
+      handleFetchErrors(error)
+    })
+}
+
 // NEW ELEMENT
 const isLoadingCreateElement = ref(false)
 const createNewElement = async () => {
@@ -490,6 +506,11 @@ const createNewElement = async () => {
   }
   isLoadingCreateElement.value = true
   await createElement(payload)
+    .then(() => {
+      if (elements.value.length === 1) {
+        fetchCalendarElements()
+      }
+    })
     .catch((error) => {
       handleFetchErrors(error)
     })
@@ -503,11 +524,25 @@ const isLoadingDeleteElement = ref(false)
 const fetchDeleteElement = async (elementId: string) => {
   isLoadingDeleteElement.value = true
   await deleteElement(elementId)
+    .then(() => {
+      if (!elements.value.length) {
+        fetchCalendarElements()
+      }
+    })
     .catch((error) => {
       handleFetchErrors(error)
     })
     .finally(() => {
       isLoadingDeleteElement.value = false
+    })
+}
+
+// CALENDAR MARKERS
+const currentYear = ref(dateCalendar.value.getFullYear())
+const fetchCalendarElements = async () => {
+  await getCalendarElements(currentYear.value, currentProject.value?.id)
+    .catch((error) => {
+      handleFetchErrors(error)
     })
 }
 
