@@ -2,7 +2,7 @@
   <Transition name="bottom-menu">
     <div
       v-if="isHomePage"
-      class="fixed bottom-6 w-[90%] left-[5%] rounded-3xl h-fit bg-base-100 bottom-menu transition-all"
+      class="fixed bottom-6 w-[90%] left-[5%] rounded-3xl h-fit bg-base-100 border border-base-content/20 bottom-menu transition-all"
     >
       <!-- SEARCH BAR -->
       <div
