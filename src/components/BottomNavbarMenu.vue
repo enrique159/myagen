@@ -1,36 +1,79 @@
 <template>
   <Transition name="bottom-menu">
-    <div v-if="isHomePage" class="fixed bottom-6 w-[90%] left-[5%] rounded-3xl h-16 bg-base-100 bottom-menu">
-      <div class="grid grid-cols-4 gap-2 place-items-center h-full px-4">
+    <div
+      v-if="isHomePage"
+      class="fixed bottom-6 w-[90%] left-[5%] rounded-3xl h-fit bg-base-100 bottom-menu transition-all"
+    >
+      <!-- SEARCH BAR -->
+      <div
+        :class="showSearchBar ? 'h-14' : 'h-0'"
+        class="w-full transition-all overflow-hidden px-3 flex items-end"
+      >
+        <input
+          type="text"
+          placeholder="Busca por nombre, tag o texto"
+          class="input border-none rounded-2xl bg-base-300/20 w-full mb-1 px-6 focus:outline-none focus:shadow-none"
+          v-model.trim="searchQuery"
+          @input="handleSearchChange"
+        />
+      </div>
+      <!-- CALENDAR -->
+      <div
+        :class="showCalendar ? 'h-[312px]' : 'h-0'"
+        class="w-full transition-all overflow-hidden px-3 flex items-end"
+      >
+        <DatePicker
+          v-model="date"
+          :markers="elementMarkers"
+          inline
+          auto-apply
+          :dark="isDark"
+          :enable-time-picker="false"
+          :timezone="timezone"
+          locale="es-MX"
+        />
+      </div>
+      <div class="grid grid-cols-4 gap-2 place-items-center h-16 px-4">
         <!-- BUSCAR -->
-        <button 
+        <button
           class="btn btn-circle btn-ghost text-base-300"
           @click="handleSearch"
         >
           <component :is="IconSearch" size="24" />
         </button>
         <!-- CALENDARIO -->
-        <button 
+        <button
           class="btn btn-circle btn-ghost text-base-300"
           @click="handleCalendar"
         >
           <component :is="IconCalendarWeek" size="24" />
         </button>
         <!-- PROYECTOS -->
-        <button 
+        <button
           class="btn btn-circle border-none"
           :class="[
-            currentProject ? [ isColorDark(currentProject.color || '#ccc') ? 'text-black' : 'text-white' ] : 'btn-ghost text-base-300',
+            currentProject
+              ? [
+                  isColorDark(currentProject.color || '#ccc')
+                    ? 'text-black'
+                    : 'text-white',
+                ]
+              : 'btn-ghost text-base-300',
           ]"
           :style="[
-            currentProject ? { 'background-color': currentProject.color || '#ccc' } : {}
+            currentProject
+              ? { 'background-color': currentProject.color || '#ccc' }
+              : {},
           ]"
-          @click="toggleProjectsDrawer"
+          @click="handleShowProjects"
         >
           <component :is="currentProjectIcon" size="24" />
         </button>
         <!-- PERFIL -->
-        <div class="btn btn-sm btn-ghost btn-circle avatar" @click="goToProfile">
+        <div
+          class="btn btn-sm btn-ghost btn-circle avatar"
+          @click="goToProfile"
+        >
           <div class="rounded-full">
             <img alt="Perfil" :src="userProfile" />
           </div>
@@ -43,30 +86,103 @@
 <script setup lang="ts">
 import { IconCalendarWeek, IconFolderOpen, IconSearch } from '@tabler/icons-vue'
 import { useUser } from '@/composables/useUser'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useProject } from '@/composables/useProject'
+import { useElement } from '@/composables/useElement'
 import * as TablerIcons from '@tabler/icons-vue'
 import { isColorDark } from '@/utils/colors'
+import { handleFetchErrors } from '@/utils/handleFetchErrors'
+import { useApp } from '@/composables/useApp'
+import { useDate } from '@/composables/useDate'
+import { useTheme } from '@/composables/useTheme'
+import dayjs from 'dayjs'
 
 const router = useRouter()
 const route = useRoute()
+const { isDark } = useTheme()
+const { formatAssignedDate, timezone } = useDate()
 
 const isHomePage = computed(() => route.name === 'Home')
 
 const { user } = useUser()
+const { dateCalendar, setDateCalendar } = useApp()
+const { searchElements, isSearching, getElements, calendarElements } = useElement()
 
 const userProfile = computed(() => {
   return user.value?.profileImageUrl || '/avatar.png'
 })
 
+
+// SEARCH
+const showSearchBar = ref(false)
 const handleSearch = () => {
-  console.log('Buscar')
+  showCalendar.value = false
+  showSearchBar.value = !showSearchBar.value
 }
 
-const handleCalendar = () => {
-  console.log('Calendario')
+watch(showSearchBar, () => {
+  if (!showSearchBar.value) {
+    searchQuery.value = ''
+    isSearching.value = false
+  }
+})
+
+const searchTimeout = ref<number | null>(null)
+const searchQuery = ref('')
+const handleSearchChange = () => {
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value)
+  }
+
+  isSearching.value = true
+  searchTimeout.value = setTimeout(() => {
+    if (searchQuery.value.trim() !== '') {
+      searchElements({ query: searchQuery.value })
+        .catch((error) => {
+          handleFetchErrors(error)
+        })
+        .finally(() => {
+          isSearching.value = false
+        })
+    } else {
+      getElements({
+        projectId: currentProject.value?.id,
+        assignedDate: formatAssignedDate(dateCalendar.value),
+      })
+        .catch((error) => {
+          handleFetchErrors(error)
+        })
+        .finally(() => {
+          isSearching.value = false
+        })
+    }
+    searchTimeout.value = null
+  }, 1000) as unknown as number
 }
+
+
+// CALENDAR
+const showCalendar = ref(false)
+
+const date = computed({
+  get: () => dateCalendar.value,
+  set: (val: Date) => setDateCalendar(val),
+})
+const handleCalendar = () => {
+  showSearchBar.value = false
+  showCalendar.value = !showCalendar.value
+}
+
+const elementMarkers = computed(() => {
+  return calendarElements.value.map((element) => {
+    return {
+      date: dayjs(element.assignedDate).add(1, 'day').format('YYYY-MM-DD'),
+      type: 'dot',
+      color: 'orange',
+    }
+  })
+})
 
 // PROJECTS
 const getProjectIcon = (iconName: string) => {
@@ -78,18 +194,26 @@ const getProjectIcon = (iconName: string) => {
 
 const { currentProject, toggleProjectsDrawer } = useProject()
 const currentProjectIcon = computed(() => {
-  return currentProject.value?.icon ? getProjectIcon(currentProject.value.icon) : IconFolderOpen
+  return currentProject.value?.icon
+    ? getProjectIcon(currentProject.value.icon)
+    : IconFolderOpen
 })
 
 const goToProfile = () => {
   router.push('/profile')
+}
+
+const handleShowProjects = () => {
+  showSearchBar.value = false
+  showCalendar.value = false
+  toggleProjectsDrawer()
 }
 </script>
 
 <style scoped>
 .bottom-menu {
   z-index: 10;
-  box-shadow: 0px 8px 10px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: 0px 4px 16px 5px rgba(0, 0, 0, 0.1);
 }
 
 .bottom-menu-enter-active {
