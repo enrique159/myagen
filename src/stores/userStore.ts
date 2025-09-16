@@ -3,6 +3,8 @@ import { defineStore } from 'pinia'
 import {
   signIn as signInUseCase,
   signOut as signoutUseCase,
+  sendRecoveryPasswordEmail as sendRecoveryPasswordEmailUseCase,
+  recoverPassword as recoverPasswordUseCase,
 } from '@/app/auth/repository/AuthRepository'
 import { signUp as signUpUseCase, updateUser as updateUserUseCase } from '@/app/modules/users/repository/UsersRepository'
 import {
@@ -80,6 +82,28 @@ export const useUserStore = defineStore('user', () => {
     return action
   }
 
+  async function sendRecoveryPasswordEmail(payload: { email: string }) {
+    const action = await sendRecoveryPasswordEmailUseCase(payload)
+      .then((response) => {
+        return response
+      })
+      .catch((error) => {
+        throw error
+      })
+    return action
+  }
+
+  async function recoverPassword(payload: { token: string, password: string }) {
+    const action = await recoverPasswordUseCase(payload)
+      .then((response) => {
+        return response
+      })
+      .catch((error) => {
+        throw error
+      })
+    return action
+  }
+
   return {
     user,
     getUser,
@@ -89,5 +113,7 @@ export const useUserStore = defineStore('user', () => {
     signOut,
     signUp,
     updateUser,
+    sendRecoveryPasswordEmail,
+    recoverPassword,
   }
 })

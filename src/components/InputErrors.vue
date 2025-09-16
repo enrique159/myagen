@@ -1,9 +1,9 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col pl-2">
     <span
       v-for="error in errors"
       :key="error.$uid"
-      class="text-xs text-brand-pink"
+      class="text-xs text-red-400"
     >
       {{ error.$message }}
     </span>

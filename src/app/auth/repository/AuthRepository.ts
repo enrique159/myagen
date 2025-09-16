@@ -27,3 +27,23 @@ export const check = async (): Promise<Response<UserAuth>> => {
   const response = await http.get<null, UserAuth>(url)
   return response
 }
+
+export const sendRecoveryPasswordEmail = async (
+  payload: { email: string },
+): Promise<Response<string>> => {
+  const url = Routes.sendRecoveryPasswordEmail(env.apiBase)
+  const response = await http.post<{ email: string }, string>(url, {
+    data: payload,
+  })
+  return response
+}
+
+export const recoverPassword = async (
+  payload: { token: string, password: string },
+): Promise<Response<string>> => {
+  const url = Routes.recoverPassword(env.apiBase)
+  const response = await http.post<{ token: string, password: string }, string>(url, {
+    data: payload,
+  })
+  return response
+}

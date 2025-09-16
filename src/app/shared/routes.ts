@@ -5,6 +5,8 @@ export const finishSlash = (string: string) => finish(string, '/')
 // AUTH ROUTES
 const signIn = (baseUrl: string) => `${finishSlash(baseUrl)}auth/signin`
 const signOut = (baseUrl: string) => `${finishSlash(baseUrl)}auth/signout`
+const sendRecoveryPasswordEmail = (baseUrl: string) => `${finishSlash(baseUrl)}auth/send-recovery-password-email`
+const recoverPassword = (baseUrl: string) => `${finishSlash(baseUrl)}auth/recover-password`
 const check = (baseUrl: string) => `${finishSlash(baseUrl)}auth/check`
 // USERS ROUTES
 const signUp = (baseUrl: string) => `${finishSlash(baseUrl)}users`
@@ -52,6 +54,8 @@ export default {
   // AUTH ROUTES
   signIn,
   signOut,
+  sendRecoveryPasswordEmail,
+  recoverPassword,
   check,
   // USERS ROUTES
   signUp,

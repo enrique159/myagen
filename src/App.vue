@@ -12,18 +12,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { check } from './app/auth/repository/AuthRepository'
 import { useUser } from '@/composables/useUser'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useTheme } from './composables/useTheme'
 import { useApp } from './composables/useApp'
 
 const router = useRouter()
+const route = useRoute()
 const { setUser, setToken } = useUser()
 const { setValidated, validated } = useApp()
+const currentPath = computed(() => route.path)
 
 useTheme()
+
 const loading = ref(true)
 const isAuthenticated = async () => {
   loading.value = true
@@ -45,6 +48,12 @@ const isAuthenticated = async () => {
 }
 
 onMounted(async () => {
+  await new Promise((resolve) => setTimeout(resolve, 200))
+  if (currentPath.value.includes('recover-password')) {
+    loading.value = false
+    setValidated(true)
+    return
+  }
   await isAuthenticated()
 })
 </script>

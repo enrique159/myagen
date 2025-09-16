@@ -550,7 +550,7 @@ const changeProject = async (elementId: string, projectId: string) => {
     })
 }
 
-// NEW ELEMENT
+// CREATE ELEMENT
 const isLoadingCreateElement = ref(false)
 const createNewElement = async () => {
   const payload = {

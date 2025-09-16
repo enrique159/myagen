@@ -32,6 +32,12 @@ export const useUser = () => {
   async function updateUser(payload: IUpdateUserPayload) {
     return userStore.updateUser(payload)
   }
+  async function sendRecoveryPasswordEmail(payload: { email: string }) {
+    return userStore.sendRecoveryPasswordEmail(payload)
+  }
+  async function recoverPassword(payload: { token: string, password: string }) {
+    return userStore.recoverPassword(payload)
+  }
 
   return {
     user,
@@ -44,5 +50,7 @@ export const useUser = () => {
     signOut,
     signUp,
     updateUser,
+    sendRecoveryPasswordEmail,
+    recoverPassword,
   }
 }

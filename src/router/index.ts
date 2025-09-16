@@ -15,10 +15,7 @@ const routes = [
     meta: {
       requiresAuth: true,
     },
-    children: [
-      ...homeRoutes,
-      ...profileRoutes,
-    ],
+    children: [...homeRoutes, ...profileRoutes],
   },
 ]
 
@@ -30,6 +27,11 @@ const router = createRouter({
 router.beforeEach((to, _, next) => {
   const { validated } = useApp()
   const { isLoggedIn } = useUser()
+
+  if (to.path.includes('recover-password')) {
+    next()
+    return
+  }
 
   if (to.meta.requiresAuth && !isLoggedIn.value && validated.value) {
     next({ name: 'SignIn' })
