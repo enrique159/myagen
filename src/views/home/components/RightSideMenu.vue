@@ -47,6 +47,13 @@
         </li>
       </ul>
     </div>
+
+    <div class="bg-base-100 pl-4 pr-2 py-2 rounded-2xl h-fit min-h-[200px] max-h-[400px] overflow-y-auto">
+      <p class="text-base-content/60 text-sm">Recordatorios</p>
+      <div v-if="true" class="h-[200px] w-full flex items-center justify-center">
+        <p class="text-base-content/60 text-sm">No hay recordatorios</p>
+      </div>
+    </div>
   </div>
 </template>
 

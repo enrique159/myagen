@@ -175,8 +175,11 @@
                   class="flex gap-2 mb-2 task-container"
                 >
                   <div
-                    class="outline-2 border-2 border-base-100 rounded-full w-4 h-4 aspect-square cursor-pointer mt-[3px]"
-                    :class="[ task.completed ? 'bg-info outline-info' : 'outline-base-300/50' ]"
+                    class="outline-2 border-2 border-base-100 rounded-full aspect-square cursor-pointer mt-[3px]"
+                    :class="[ 
+                      task.completed ? 'bg-info outline-info' : 'outline-base-300/50',
+                      isMobile ? 'w-6 h-6' : 'w-4 h-4'
+                    ]"
                     @click="() => {
                       updateTask(
                         {
@@ -196,7 +199,7 @@
                     :id="`task-${task.id}`"
                     v-model="task.description"
                     class="border-none focus:outline-none w-full resize-none font-medium"
-                    :class="{ 'text-base-content/40 line-through': task.completed }"
+                    :class="{ 'text-base-content/40 line-through': task.completed, 'mt-1': isMobile }"
                     @input="() => {
                       if (task.description === '') {
                         deleteTask({
@@ -219,8 +222,13 @@
                     }"
                     rows="1"
                   />
-                  <button class="reminder-btn btn btn-ghost btn-xs btn-circle text-base-300 opacity-0 duration-300 transition-all hover:text-base-content">
-                    <IconAlarm size="18" />
+                  <button
+                    class="reminder-btn btn btn-ghost btn-circle text-base-300 opacity-0 duration-300 transition-all hover:text-base-content"
+                    :class="[
+                      isMobile ? 'btn-sm' : 'btn-xs'
+                    ]"
+                  >
+                    <IconAlarm :size="isMobile ? 20 : 18" />
                   </button>
                 </div>
                 <!-- NEW TASK -->
