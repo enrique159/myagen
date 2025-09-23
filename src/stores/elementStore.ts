@@ -325,8 +325,8 @@ export const useElementStore = defineStore('element', () => {
           if (listIndex !== -1) {
             elements.value[elementIndex]?.lists[listIndex]?.tasks?.forEach((task) => {
               if (task.id === taskId) {
-                task.description = payload.description || task.description
-                task.completed = payload.completed || task.completed
+                task.description = payload.description !== undefined ? payload.description : task.description
+                task.completed = payload.completed !== undefined ? payload.completed : task.completed
               }
             })
           }

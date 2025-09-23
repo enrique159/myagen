@@ -146,6 +146,8 @@ import {
   IconFolderOpen,
   IconSearch,
   IconAlarm,
+  IconCheck,
+  IconTrash,
 } from '@tabler/icons-vue'
 import { useUser } from '@/composables/useUser'
 import { computed, ref, watch } from 'vue'

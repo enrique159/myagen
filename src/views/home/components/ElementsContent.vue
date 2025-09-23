@@ -491,6 +491,7 @@ const {
   updateTask,
   deleteTask,
   createReminder,
+  getReminders,
 } = useElement()
 
 const searchTag = ref('')
@@ -712,6 +713,11 @@ const submitNewReminder = async () => {
     })
     .finally(() => {
       showNewReminderModal.value = false
+    })
+
+  await getReminders()
+    .catch((error) => {
+      handleFetchErrors(error)
     })
 }
 

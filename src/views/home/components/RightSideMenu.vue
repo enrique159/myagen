@@ -100,7 +100,7 @@
 <script setup lang="ts">
 import { useUser } from '@/composables/useUser';
 import { useApp } from '@/composables/useApp';
-import { IconSettings, IconUser, IconLogout, IconAlarm, IconCheck } from '@tabler/icons-vue';
+import { IconSettings, IconUser, IconLogout, IconAlarm, IconCheck, IconTrash } from '@tabler/icons-vue';
 import { useBreakpoints } from '@/composables/useBreakpoints';
 import { useElement } from '@/composables/useElement';
 import { computed, onMounted, ref } from 'vue';
