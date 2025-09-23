@@ -61,12 +61,22 @@ export const useDate = () => {
     return tz
   })
 
+  /**
+   * Formatea una fecha en formato ISO 8601 manteniendo la zona horaria local
+   * Útil para enviar fechas a APIs que requieren formato ISO pero respetando la hora local
+   */
+  const formatLocalISOString = (date: Date | string | undefined) => {
+    if (!date) return ''
+    return dayjs(date).format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+  }
+
   return {
     getCurrentDate,
     formatDatetime,
     formatDatetimeShort,
     formatDate,
     formatAssignedDate,
+    formatLocalISOString,
     isToday,
     timezone,
   }

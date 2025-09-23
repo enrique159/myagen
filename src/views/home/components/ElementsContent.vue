@@ -227,6 +227,7 @@
                     :class="[
                       isMobile ? 'btn-sm' : 'btn-xs'
                     ]"
+                    @click="setNewReminder(task.id)"
                   >
                     <IconAlarm :size="isMobile ? 20 : 18" />
                   </button>
@@ -362,6 +363,34 @@
     </button>
   </basic-modal>
 
+  <!-- NEW REMINDER -->
+  <basic-modal v-model="showNewReminderModal" title="Nuevo recordatorio">
+    <date-picker
+      class="mx-auto max-w-[260px]"
+      v-model="newReminder.reminderDate"
+      time-picker-inline
+      inline
+      auto-apply
+      :min-date="new Date()"
+      :timezone="timezone"
+      :dark="isDark"
+    >
+      <template #action-preview>
+        <span></span>
+      </template>
+      <template #action-buttons>
+        <span></span>
+      </template>
+    </date-picker>
+    <p class="text-center mb-4">
+      {{ formatDatetimeShort(newReminder.reminderDate) }}
+    </p>
+
+    <button class="btn btn-primary w-full btn-soft mb-6" @click="submitNewReminder">
+      <span>Guardar</span>
+    </button>
+  </basic-modal>
+
   <basic-modal v-model="showSelectProjectModal" title="Proyectos">
     <div class="flex flex-col w-full gap-4">
       <div class="grid grid-cols-2 gap-2 pb-6">
@@ -412,6 +441,7 @@ import { useProject } from '@/composables/useProject'
 import { handleFetchErrors } from '@/utils/handleFetchErrors'
 import { PROJECT_COLORS } from '@/constants/colors'
 import type { ICreateTagPayload } from '@/app/modules/tags/domain/tag'
+import type { ICreateReminderPayload } from '@/app/modules/reminders/domain/reminder'
 import {
   TodoListType,
   type TodoList,
@@ -420,10 +450,12 @@ import type { Task } from '@/app/modules/tasks/domain/task'
 import TaskCompletedSound from '@/assets/task_completed.mp3'
 import TablerIcons from '@/plugins/tablerIcons'
 import { useBreakpoints } from '@/composables/useBreakpoints'
+import { useTheme } from '@/composables/useTheme'
 import notify from '@/utils/notifications'
 import { isColorDark } from '@/utils/colors'
 
 const { isMobile } = useBreakpoints()
+const { isDark } = useTheme()
 
 const getProjectIcon = (iconName: string) => {
   if (iconName in TablerIcons) {
@@ -438,7 +470,7 @@ const showToday = computed(() => {
   return isToday(dateCalendar.value)
 })
 
-const { formatDate, isToday, formatAssignedDate, formatDatetimeShort } = useDate()
+const { formatDate, isToday, formatAssignedDate, formatDatetimeShort, timezone, formatLocalISOString } = useDate()
 const {
   isSearching,
   elements,
@@ -458,6 +490,7 @@ const {
   createTask,
   updateTask,
   deleteTask,
+  createReminder,
 } = useElement()
 
 const searchTag = ref('')
@@ -653,6 +686,32 @@ const submitNewTag = async () => {
     })
     .finally(() => {
       showNewTagModal.value = false
+    })
+}
+
+// REMINDERS
+const showNewReminderModal = ref(false)
+const newReminder = ref({
+  reminderDate: new Date(),
+  taskId: '',
+})
+
+const setNewReminder = (taskId: string) => {
+  newReminder.value.taskId = taskId
+  showNewReminderModal.value = true
+}
+
+const submitNewReminder = async () => {
+  const payload: ICreateReminderPayload = {
+    taskId: newReminder.value.taskId,
+    reminderDate: formatLocalISOString(newReminder.value.reminderDate),
+  }
+  await createReminder(payload)
+    .catch((error) => {
+      handleFetchErrors(error)
+    })
+    .finally(() => {
+      showNewReminderModal.value = false
     })
 }
 

@@ -32,9 +32,16 @@ import {
   updateTask as updateTaskUseCase,
   deleteTask as deleteTaskUseCase,
 } from '@/app/modules/tasks/TasksRepository'
+import {
+  getReminders as getRemindersUseCase,
+  createReminder as createReminderUseCase,
+  updateReminder as updateReminderUseCase,
+  deleteReminder as deleteReminderUseCase,
+} from '@/app/modules/reminders/RemindersRepository'
 import type { ICreateTagPayload, IUpdateTagPayload, Tag } from '@/app/modules/tags/domain/tag'
 import type { ICreateTodoListPayload, IUpdateTodoListPayload, TodoList } from '@/app/modules/todo-lists/domain/todo-list'
 import type { ICreateTaskPayload, IUpdateTaskPayload, Task } from '@/app/modules/tasks/domain/task'
+import type { ICreateReminderPayload, IUpdateReminderPayload, Reminder } from '@/app/modules/reminders/domain/reminder'
 
 export const useElementStore = defineStore('element', () => {
   const elements = ref<Element[]>([])
@@ -64,7 +71,7 @@ export const useElementStore = defineStore('element', () => {
         addElement(response.data)
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -75,7 +82,7 @@ export const useElementStore = defineStore('element', () => {
         return response
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -86,7 +93,7 @@ export const useElementStore = defineStore('element', () => {
         setElements(response.data)
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -97,7 +104,7 @@ export const useElementStore = defineStore('element', () => {
         setElements(response.data)
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -109,7 +116,7 @@ export const useElementStore = defineStore('element', () => {
         return response
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -120,7 +127,7 @@ export const useElementStore = defineStore('element', () => {
         removeElement(elementId)
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -132,7 +139,7 @@ export const useElementStore = defineStore('element', () => {
         return response
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -144,7 +151,7 @@ export const useElementStore = defineStore('element', () => {
         return response
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -171,7 +178,7 @@ export const useElementStore = defineStore('element', () => {
         setTags([...tags.value, response.data])
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -182,7 +189,7 @@ export const useElementStore = defineStore('element', () => {
         setTags(response.data)
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -195,7 +202,7 @@ export const useElementStore = defineStore('element', () => {
         return response
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -207,7 +214,7 @@ export const useElementStore = defineStore('element', () => {
         tags.value.splice(index, 1)
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -230,7 +237,7 @@ export const useElementStore = defineStore('element', () => {
         return response
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -247,7 +254,7 @@ export const useElementStore = defineStore('element', () => {
         return response
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -264,7 +271,7 @@ export const useElementStore = defineStore('element', () => {
         }
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -304,7 +311,7 @@ export const useElementStore = defineStore('element', () => {
         return response
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -327,7 +334,7 @@ export const useElementStore = defineStore('element', () => {
         return response
       })
       .catch((error) => {
-        console.error(error)
+        throw error
       })
     return action
   }
@@ -338,7 +345,66 @@ export const useElementStore = defineStore('element', () => {
         removeTaskFromElementList(elementId, listId, taskId)
       })
       .catch((error) => {
-        console.error(error)
+        throw error
+      })
+    return action
+  }
+
+
+  // REMINDERS
+  const reminders = ref<Reminder[]>([])
+
+  const setReminders = (newReminders: Reminder[]) => {
+    reminders.value = newReminders
+  }
+
+  const removeReminder = (reminderId: string) => {
+    reminders.value = reminders.value.filter(
+      (reminder) => reminder.id !== reminderId,
+    )
+  }
+
+  const getReminders = async () => {
+    const action = await getRemindersUseCase({})
+      .then((response) => {
+        setReminders(response.data)
+        return response
+      })
+      .catch((error) => {
+        throw error
+      })
+    return action
+  }
+
+  const createReminder = async (payload: ICreateReminderPayload) => {
+    const action = await createReminderUseCase(payload)
+      .then((response) => {
+        return response
+      })
+      .catch((error) => {
+        throw error
+      })
+    return action
+  }
+
+  const updateReminder = async (reminderId: string, payload: IUpdateReminderPayload) => {
+    const action = await updateReminderUseCase(reminderId, payload)
+      .then((response) => {
+        return response
+      })
+      .catch((error) => {
+        throw error
+      })
+    return action
+  }
+
+  const deleteReminder = async (reminderId: string) => {
+    const action = await deleteReminderUseCase(reminderId)
+      .then(() => {
+        removeReminder(reminderId)
+      })
+      .catch((error) => {
+        throw error
       })
     return action
   }
@@ -372,5 +438,12 @@ export const useElementStore = defineStore('element', () => {
     createTask,
     updateTask,
     deleteTask,
+    // REMINDERS
+    reminders,
+    setReminders,
+    getReminders,
+    createReminder,
+    updateReminder,
+    deleteReminder,
   }
 })

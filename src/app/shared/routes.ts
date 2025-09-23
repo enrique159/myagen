@@ -48,7 +48,11 @@ const deleteList = (baseUrl: string, listId: string) => `${finishSlash(baseUrl)}
 const createTask = (baseUrl: string) => `${finishSlash(baseUrl)}tasks`
 const updateTask = (baseUrl: string, taskId: string) => `${finishSlash(baseUrl)}tasks/${taskId}`
 const deleteTask = (baseUrl: string, taskId: string) => `${finishSlash(baseUrl)}tasks/${taskId}`
-
+// REMINDERS ROUTES
+const createReminder = (baseUrl: string) => `${finishSlash(baseUrl)}reminders`
+const updateReminder = (baseUrl: string, reminderId: string) => `${finishSlash(baseUrl)}reminders/${reminderId}`
+const deleteReminder = (baseUrl: string, reminderId: string) => `${finishSlash(baseUrl)}reminders/${reminderId}`
+const getReminders = (baseUrl: string) => `${finishSlash(baseUrl)}reminders/user/date-range`
 
 export default {
   // AUTH ROUTES
@@ -88,4 +92,9 @@ export default {
   createTask,
   updateTask,
   deleteTask,
+  // REMINDERS ROUTES
+  getReminders,
+  createReminder,
+  updateReminder,
+  deleteReminder,
 }

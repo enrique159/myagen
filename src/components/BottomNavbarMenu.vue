@@ -33,7 +33,35 @@
           locale="es-MX"
         />
       </div>
-      <div class="grid grid-cols-4 gap-2 place-items-center h-16 px-4">
+
+      <!-- REMINDERS -->
+      <div
+        :class="
+          showReminders
+            ? 'h-fit min-h-[200px] max-h-[400px] overflow-y-auto'
+            : 'h-0'
+        "
+        class="w-full transition-all overflow-hidden px-6"
+      >
+        <p class="text-base-content/60 text-sm pt-6">Recordatorios</p>
+        <div class="py-2 space-y-2">
+          <div
+            v-for="reminder in reminders"
+            :key="reminder.id"
+            class="flex items-center gap-2 cursor-pointer hover:bg-base-200 rounded-2xl p-1"
+            @click="openReminderModal(reminder)"
+          >
+            <IconAlarm size="18" class="text-red-500 min-w-5" />
+            <div class="w-full pr-6">
+              <p class="text-xs text-base-content/60">
+                {{ formatDatetimeShort(reminder.date) }}
+              </p>
+              <p class="text-sm truncate">{{ reminder.task?.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-5 gap-2 place-items-center h-16 px-4">
         <!-- BUSCAR -->
         <button
           class="btn btn-circle btn-ghost text-base-300"
@@ -69,6 +97,13 @@
         >
           <component :is="currentProjectIcon" size="24" />
         </button>
+        <!-- REMINDERS -->
+        <button
+          class="btn btn-circle btn-ghost text-base-300"
+          @click="handleReminders"
+        >
+          <IconAlarm size="24" />
+        </button>
         <!-- PERFIL -->
         <div
           class="btn btn-sm btn-ghost btn-circle avatar"
@@ -81,10 +116,37 @@
       </div>
     </div>
   </Transition>
+
+  <basic-modal v-model="showReminderModal" title="Recordatorio">
+    <span class="text-base-content/60 text-sm"> Descripción </span>
+    <p class="mb-4">{{ selectedReminder?.task?.description }}</p>
+    <span class="text-base-content/60 text-sm"> Fecha </span>
+    <p class="mb-4">{{ formatDatetimeShort(selectedReminder?.date) }}</p>
+
+    <div class="flex flex-col gap-2 pb-4">
+      <button
+        class="btn bg-primary text-white hover:bg-primary/80 w-full shadow-none rounded-full"
+        @click="markAsCompleted"
+      >
+        <IconCheck size="16" /> Marcar como completado
+      </button>
+      <button
+        class="btn bg-error text-white hover:bg-error/80 w-full shadow-none rounded-full"
+        @click="handleDeleteReminder"
+      >
+        <IconTrash size="16" /> Eliminar
+      </button>
+    </div>
+  </basic-modal>
 </template>
 
 <script setup lang="ts">
-import { IconCalendarWeek, IconFolderOpen, IconSearch } from '@tabler/icons-vue'
+import {
+  IconCalendarWeek,
+  IconFolderOpen,
+  IconSearch,
+  IconAlarm,
+} from '@tabler/icons-vue'
 import { useUser } from '@/composables/useUser'
 import { computed, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -93,31 +155,44 @@ import { useElement } from '@/composables/useElement'
 import * as TablerIcons from '@tabler/icons-vue'
 import { isColorDark } from '@/utils/colors'
 import { handleFetchErrors } from '@/utils/handleFetchErrors'
+import type { Reminder } from '@/app/modules/reminders/domain/reminder'
 import { useApp } from '@/composables/useApp'
 import { useDate } from '@/composables/useDate'
 import { useTheme } from '@/composables/useTheme'
 import dayjs from 'dayjs'
+import notify from '@/utils/notifications'
+import Exception from '@/app/shared/error/Exception'
 
 const router = useRouter()
 const route = useRoute()
 const { isDark } = useTheme()
-const { formatAssignedDate, timezone } = useDate()
+const { formatAssignedDate, formatDatetimeShort, timezone } = useDate()
 
 const isHomePage = computed(() => route.name === 'Home')
 
 const { user } = useUser()
 const { dateCalendar, setDateCalendar } = useApp()
-const { searchElements, isSearching, getElements, calendarElements } = useElement()
+const {
+  searchElements,
+  isSearching,
+  getElements,
+  calendarElements,
+  reminders,
+  updateReminder,
+  deleteReminder,
+  updateTask,
+  getReminders,
+} = useElement()
 
 const userProfile = computed(() => {
   return user.value?.profileImageUrl || '/avatar.png'
 })
 
-
 // SEARCH
 const showSearchBar = ref(false)
 const handleSearch = () => {
   showCalendar.value = false
+  showReminders.value = false
   showSearchBar.value = !showSearchBar.value
 }
 
@@ -161,7 +236,6 @@ const handleSearchChange = () => {
   }, 1000) as unknown as number
 }
 
-
 // CALENDAR
 const showCalendar = ref(false)
 
@@ -171,6 +245,7 @@ const date = computed({
 })
 const handleCalendar = () => {
   showSearchBar.value = false
+  showReminders.value = false
   showCalendar.value = !showCalendar.value
 }
 
@@ -206,7 +281,66 @@ const goToProfile = () => {
 const handleShowProjects = () => {
   showSearchBar.value = false
   showCalendar.value = false
+  showReminders.value = false
   toggleProjectsDrawer()
+}
+
+// REMINDERS
+const showReminders = ref(false)
+const showReminderModal = ref(false)
+const selectedReminder = ref<Reminder | null>(null)
+
+const handleReminders = () => {
+  showSearchBar.value = false
+  showCalendar.value = false
+  showReminders.value = !showReminders.value
+}
+
+const openReminderModal = (reminder: Reminder) => {
+  selectedReminder.value = reminder
+  showReminderModal.value = true
+}
+
+const fetchReminders = async () => {
+  await getReminders().catch((error) => handleFetchErrors(error))
+}
+
+const markAsCompleted = async () => {
+  const ids = {
+    taskId: selectedReminder.value?.task?.id || '',
+    elementId: selectedReminder.value?.task?.list?.element?.id || '',
+    listId: selectedReminder.value?.task?.list?.id || '',
+  }
+  try {
+    await updateReminder(selectedReminder.value?.id || '', {
+      notified: true,
+    })
+    await updateTask(ids, {
+      completed: true,
+    })
+    await fetchReminders()
+  } catch (error) {
+    if (error instanceof Exception) {
+      handleFetchErrors(error)
+    }
+    notify.error('Error al marcar como completado')
+  } finally {
+    showReminderModal.value = false
+  }
+}
+
+const handleDeleteReminder = async () => {
+  try {
+    await deleteReminder(selectedReminder.value?.id || '')
+    await fetchReminders()
+  } catch (error) {
+    if (error instanceof Exception) {
+      handleFetchErrors(error)
+    }
+    notify.error('Error al eliminar el recordatorio')
+  } finally {
+    showReminderModal.value = false
+  }
 }
 </script>
 

@@ -1,4 +1,5 @@
 import type { ICreateElementPayload, IGetElementsParams, IUpdateElementPayload } from '@/app/modules/elements/domain/element'
+import type { ICreateReminderPayload, IUpdateReminderPayload } from '@/app/modules/reminders/domain/reminder'
 import type { ICreateTagPayload, IUpdateTagPayload } from '@/app/modules/tags/domain/tag'
 import type { ICreateTaskPayload, IUpdateTaskPayload } from '@/app/modules/tasks/domain/task'
 import type { ICreateTodoListPayload, IUpdateTodoListPayload } from '@/app/modules/todo-lists/domain/todo-list'
@@ -10,7 +11,7 @@ const isLoadingSearch = ref(false)
 
 export const useElement = () => {
   const elementStore = useElementStore()
-  const { elements, tags, calendarElements } = storeToRefs(elementStore)
+  const { elements, tags, calendarElements, reminders } = storeToRefs(elementStore)
 
   const isSearching = computed({
     get: () => isLoadingSearch.value,
@@ -75,6 +76,22 @@ export const useElement = () => {
     return elementStore.deleteTag(tagId)
   }
 
+  // REMINDERS
+  function getReminders() {
+    return elementStore.getReminders()
+  }
+  function createReminder(payload: ICreateReminderPayload) {
+    return elementStore.createReminder(payload)
+  }
+
+  function updateReminder(reminderId: string, payload: IUpdateReminderPayload) {
+    return elementStore.updateReminder(reminderId, payload)
+  }
+
+  function deleteReminder(reminderId: string) {
+    return elementStore.deleteReminder(reminderId)
+  }
+
   // TODO-LISTS
   function createList(payload: ICreateTodoListPayload) {
     return elementStore.createList(payload)
@@ -130,5 +147,11 @@ export const useElement = () => {
     createTask,
     updateTask,
     deleteTask,
+    // REMINDERS
+    reminders,
+    getReminders,
+    createReminder,
+    updateReminder,
+    deleteReminder,
   }
 }

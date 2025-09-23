@@ -6,3 +6,18 @@ export interface Reminder extends Base {
   notified: boolean
   task?: Task
 }
+
+export interface IGetRemindersPayload {
+  startDate?: string
+  endDate?: string
+}
+
+export interface ICreateReminderPayload {
+  taskId: string
+  reminderDate: string
+}
+
+export interface IUpdateReminderPayload {
+  reminderDate?: string
+  notified?: boolean
+}

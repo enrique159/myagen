@@ -15,6 +15,6 @@ export interface ICreateTaskPayload {
 }
 
 export interface IUpdateTaskPayload {
-  description: string
-  completed: boolean
+  description?: string
+  completed?: boolean
 }
