@@ -16,11 +16,39 @@
     </header>
     <section class="container mx-auto max-w-md space-y-8">
       <div class="flex items-center gap-2 mt-6 relative">
-        <img
-          class="w-16 h-16 aspect-square max-w-16 rounded-full"
-          alt="Perfil"
-          :src="user?.profileImageUrl || '/avatar.png'"
-        />
+        <div class="relative rounded-full overflow-hidden">
+          <img
+            :src="currentProfileImage"
+            alt="Perfil"
+            class="w-16 h-16 object-contain bg-base-200"
+          />
+          <div
+            v-if="!isImageUploading"
+            class="absolute top-0 left-0 w-full h-full flex items-center justify-center"
+            :class="{
+              'opacity-0 hover:opacity-100 transition-all bg-black/30': isDesktop,
+            }"
+          >
+            <label class="btn btn-sm btn-circle" :class="[
+              isDesktop ? 'bg-base-200/50 backdrop-blur-xs' :
+              'bg-transparent text-white border-none',
+            ]">
+              <IconPencil />
+              <input
+                type="file"
+                class="hidden"
+                accept="image/*"
+                @change="handleImageChange"
+              />
+            </label>
+          </div>
+          <div
+            v-else
+            class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black/30 opacity-100"
+          >
+            <span class="loading loading-spinner"></span>
+          </div>
+        </div>
         <div>
           <p class="text-lg font-semibold">{{ user?.name }} {{ user?.lastName }}</p>
           <p class="text-base-300">{{ user?.email }}</p>
@@ -89,17 +117,20 @@ import {
   IconEdit,
   IconLock,
   IconLogout,
+  IconPencil,
 } from '@tabler/icons-vue'
 import { useUser } from '@/composables/useUser'
 import { useBreakpoints } from '@/composables/useBreakpoints'
 import IconSun from '@/assets/customs/IconSun.vue'
 import IconMoon from '@/assets/customs/IconMoon.vue'
 import { useTheme } from '@/composables/useTheme'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import type Exception from '@/app/shared/error/Exception'
+import { handleFetchErrors } from '@/utils/handleFetchErrors'
 
 
 const { isDark } = useTheme()
-const { user, signOut } = useUser()
+const { user, signOut, uploadImage } = useUser()
 
 const { isDesktop } = useBreakpoints()
 
@@ -110,4 +141,28 @@ const logout = async () => {
 
 const showNewPasswordModal = ref(false)
 const showEditUserModal = ref(false)
+
+// PROFILE IMAGE
+const currentProfileImage = computed(() => user.value?.profileImageUrl || '/avatar.png')
+const isImageUploading = ref(false)
+const profileImage = ref<File | null>(null)
+const handleImageChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    profileImage.value = file
+    submitNewImage()
+  }
+}
+
+const submitNewImage = async () => {
+  isImageUploading.value = true
+  await uploadImage(profileImage.value!)
+    .catch((error: Exception) => {
+      handleFetchErrors(error)
+    })
+    .finally(() => {
+      isImageUploading.value = false
+    })
+}
 </script>

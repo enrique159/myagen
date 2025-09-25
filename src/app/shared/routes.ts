@@ -11,6 +11,7 @@ const check = (baseUrl: string) => `${finishSlash(baseUrl)}auth/check`
 // USERS ROUTES
 const signUp = (baseUrl: string) => `${finishSlash(baseUrl)}users`
 const updateUser = (baseUrl: string) => `${finishSlash(baseUrl)}users`
+const uploadImage = (baseUrl: string) => `${finishSlash(baseUrl)}users/upload-image`
 // PROJECTS ROUTES
 const createProject = (baseUrl: string) => `${finishSlash(baseUrl)}projects`
 const updateProject = (baseUrl: string, projectId: string) =>
@@ -64,6 +65,7 @@ export default {
   // USERS ROUTES
   signUp,
   updateUser,
+  uploadImage,
   // PROJECTS ROUTES
   createProject,
   updateProject,

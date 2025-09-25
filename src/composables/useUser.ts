@@ -38,6 +38,9 @@ export const useUser = () => {
   async function recoverPassword(payload: { token: string, password: string }) {
     return userStore.recoverPassword(payload)
   }
+  async function uploadImage(file: File) {
+    return userStore.uploadImage(file)
+  }
 
   return {
     user,
@@ -52,5 +55,6 @@ export const useUser = () => {
     updateUser,
     sendRecoveryPasswordEmail,
     recoverPassword,
+    uploadImage,
   }
 }

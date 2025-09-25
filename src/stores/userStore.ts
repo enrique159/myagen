@@ -6,12 +6,16 @@ import {
   sendRecoveryPasswordEmail as sendRecoveryPasswordEmailUseCase,
   recoverPassword as recoverPasswordUseCase,
 } from '@/app/auth/repository/AuthRepository'
-import { signUp as signUpUseCase, updateUser as updateUserUseCase } from '@/app/modules/users/repository/UsersRepository'
 import {
-  type ISignInPayload,
-  type UserAuth,
-} from '@/app/auth/domain/auth.d'
-import { type ICreateUserPayload, type IUpdateUserPayload } from '@/app/modules/users/domain/user.d'
+  signUp as signUpUseCase,
+  updateUser as updateUserUseCase,
+  uploadImage as uploadImageUseCase,
+} from '@/app/modules/users/repository/UsersRepository'
+import { type ISignInPayload, type UserAuth } from '@/app/auth/domain/auth.d'
+import {
+  type ICreateUserPayload,
+  type IUpdateUserPayload,
+} from '@/app/modules/users/domain/user.d'
 import { useLocalStorage } from '@vueuse/core'
 
 export const useUserStore = defineStore('user', () => {
@@ -71,8 +75,12 @@ export const useUserStore = defineStore('user', () => {
     const action = await updateUserUseCase(payload)
       .then((response) => {
         if (user.value) {
-          user.value.name = response.data.name ? response.data.name : user.value.name
-          user.value.lastName = response.data.lastName ? response.data.lastName : user.value.lastName
+          user.value.name = response.data.name
+            ? response.data.name
+            : user.value.name
+          user.value.lastName = response.data.lastName
+            ? response.data.lastName
+            : user.value.lastName
         }
         return response
       })
@@ -93,9 +101,23 @@ export const useUserStore = defineStore('user', () => {
     return action
   }
 
-  async function recoverPassword(payload: { token: string, password: string }) {
+  async function recoverPassword(payload: { token: string; password: string }) {
     const action = await recoverPasswordUseCase(payload)
       .then((response) => {
+        return response
+      })
+      .catch((error) => {
+        throw error
+      })
+    return action
+  }
+
+  async function uploadImage(file: File) {
+    const action = await uploadImageUseCase(file)
+      .then((response) => {
+        if (user.value) {
+          user.value.profileImageUrl = response.data.profileImageUrl
+        }
         return response
       })
       .catch((error) => {
@@ -113,6 +135,7 @@ export const useUserStore = defineStore('user', () => {
     signOut,
     signUp,
     updateUser,
+    uploadImage,
     sendRecoveryPasswordEmail,
     recoverPassword,
   }

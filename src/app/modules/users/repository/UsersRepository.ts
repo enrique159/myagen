@@ -24,3 +24,17 @@ export const updateUser = async (payload: IUpdateUserPayload): Promise<Response<
   })
   return response
 }
+
+export const uploadImage = async (file: File): Promise<Response<User>> => {
+  const url = Routes.uploadImage(env.apiBase)
+  const formData = new FormData()
+  formData.append('image', file)
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+  }
+  const response = await http.post<FormData, User>(url, {
+    data: formData,
+    headers,
+  })
+  return response
+}
