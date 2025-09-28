@@ -3,6 +3,7 @@ import MainLayout from '@/layouts/MainLayout.vue'
 import homeRoutes from '../views/home/routes'
 import authRoutes from '../views/auth/routes'
 import profileRoutes from '../views/profile/routes'
+import tagsRoutes from '../views/tags/routes'
 import { useApp } from '@/composables/useApp'
 import { useUser } from '@/composables/useUser'
 
@@ -15,7 +16,7 @@ const routes = [
     meta: {
       requiresAuth: true,
     },
-    children: [...homeRoutes, ...profileRoutes],
+    children: [...homeRoutes, ...profileRoutes, ...tagsRoutes],
   },
 ]
 

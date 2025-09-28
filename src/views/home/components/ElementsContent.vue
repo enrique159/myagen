@@ -99,7 +99,7 @@
               </div>
               <ul
                 tabindex="0"
-                class="dropdown-content menu bg-base-100 rounded-xl w-60 p-2 shadow-xl border border-base-content/20"
+                class="dropdown-content menu bg-base-100 rounded-xl w-48 p-2 shadow-xl border border-base-content/20"
                 style="z-index: 40 !important"
               >
                 <input

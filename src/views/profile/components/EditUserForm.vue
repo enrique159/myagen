@@ -17,7 +17,7 @@
       </label>
     </fieldset>
 
-    <!-- CONFIRM PASSWORD -->
+    <!-- LAST NAME -->
     <fieldset class="form-control mb-6">
       <label class="input w-full relative rounded-full">
         <IconLock class="text-gray-500" />
@@ -89,7 +89,7 @@ const handleSubmit = async () => {
 
   await updateUser(payload)
     .then(() => {
-      notify.success('Contraseña actualizada correctamente')
+      notify.success('Usuario editado correctamente')
       showModal.value = false
     })
     .catch((error) => {

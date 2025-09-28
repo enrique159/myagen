@@ -34,10 +34,10 @@
           </router-link>
         </li>
         <li>
-          <a>
-            <IconSettings size="16" />
-            Configuración
-          </a>
+          <router-link to="/tags">
+            <IconHash size="16" />
+            Tags
+          </router-link>
         </li>
         <li @click="logout">
           <a class="text-red-400">
@@ -100,7 +100,7 @@
 <script setup lang="ts">
 import { useUser } from '@/composables/useUser';
 import { useApp } from '@/composables/useApp';
-import { IconSettings, IconUser, IconLogout, IconAlarm, IconCheck, IconTrash } from '@tabler/icons-vue';
+import { IconUser, IconLogout, IconAlarm, IconCheck, IconTrash, IconHash } from '@tabler/icons-vue';
 import { useBreakpoints } from '@/composables/useBreakpoints';
 import { useElement } from '@/composables/useElement';
 import { computed, onMounted, ref } from 'vue';
