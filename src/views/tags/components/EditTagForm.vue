@@ -56,12 +56,19 @@
     </div>
 
     <button
-      class="btn bg-primary text-white hover:bg-primary/80 w-full shadow-none rounded-full mb-6"
+      class="btn bg-primary text-white hover:bg-primary/80 w-full shadow-none rounded-full mb-2"
       :disabled="isLoading"
       @click="handleSubmit"
     >
       <LoadingSpinner v-if="isLoading" size="sm" />
       <span>Guardar</span>
+    </button>
+
+    <button
+      class="btn btn-soft btn-error w-full shadow-none rounded-full mb-6"
+      @click="handleDelete"
+    >
+      Eliminar
     </button>
   </basic-modal>
 </template>
@@ -132,7 +139,7 @@ watch(showModal, (value) => {
   }
 })
 
-const { updateTag } = useElement()
+const { updateTag, deleteTag } = useElement()
 const isLoading = ref(false)
 const handleSubmit = async () => {
   if (name.value.length === 0 || color.value.length === 0) {
@@ -149,6 +156,21 @@ const handleSubmit = async () => {
   await updateTag(props.tag?.id || '', payload)
     .then(() => {
       notify.success('Tag editado correctamente')
+      showModal.value = false
+    })
+    .catch((error) => {
+      handleFetchErrors(error)
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+
+const handleDelete = async () => {
+  isLoading.value = true
+  await deleteTag(props.tag?.id || '')
+    .then(() => {
+      notify.success('Tag eliminado correctamente')
       showModal.value = false
     })
     .catch((error) => {
