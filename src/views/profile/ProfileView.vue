@@ -86,6 +86,18 @@
         </button>
 
         <button
+          class="btn w-full bg-base-100 border-none rounded-xl h-14 text-base-content/60 flex justify-start items-center gap-2 relative"
+          @click="openChangeLogModal"
+        >
+          <IconExchange stroke="2" />
+          Registro de cambios (Changelog)
+          <IconChevronRight
+            stroke="2"
+            class="absolute right-2 top-1/2 -translate-y-1/2"
+          />
+        </button>
+
+        <button
           v-if="!isDesktop"
           class="btn w-full bg-base-100 border-none rounded-xl h-14 text-red-400 flex justify-start items-center gap-2 relative"
           @click="logout"
@@ -106,15 +118,20 @@
 
   <!-- EDIT USER -->
   <EditUserForm v-model="showEditUserModal" />
+
+  <!-- CHANGE LOG -->
+  <ChangeLog ref="changeLogModal" />
 </template>
 
 <script setup lang="ts">
+import ChangeLog from './components/ChangeLog.vue'
 import ChangePasswordForm from './components/ChangePasswordForm.vue'
 import EditUserForm from './components/EditUserForm.vue'
 import {
   IconArrowLeft,
   IconChevronRight,
   IconEdit,
+  IconExchange,
   IconLock,
   IconLogout,
   IconPencil,
@@ -164,5 +181,11 @@ const submitNewImage = async () => {
     .finally(() => {
       isImageUploading.value = false
     })
+}
+
+const changeLogModal = ref<InstanceType<typeof ChangeLog> | null>(null)
+
+const openChangeLogModal = () => {
+  changeLogModal.value?.openModal()
 }
 </script>
