@@ -20,7 +20,7 @@
           <img
             :src="currentProfileImage"
             alt="Perfil"
-            class="w-16 h-16 object-contain bg-base-200"
+            class="w-16 h-16 object-cover bg-base-200"
           />
           <div
             v-if="!isImageUploading"
