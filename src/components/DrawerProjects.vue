@@ -243,12 +243,19 @@
       </div>
 
       <button
-        class="btn btn-primary btn-soft"
+        class="btn bg-primary text-white hover:bg-primary/80 w-full shadow-none rounded-full"
         @click="editProject"
         :disabled="isLoadingEditProject"
       >
         <span>Editar proyecto</span>
         <loading-spinner v-if="isLoadingEditProject" />
+      </button>
+
+      <button
+        class="btn bg-error text-white hover:bg-error/80 w-full shadow-none rounded-full"
+        @click="handleDeleteProject"
+      >
+        <IconTrash size="16" /> Eliminar
       </button>
     </div>
   </basic-modal>
@@ -262,6 +269,7 @@ import { isColorDark } from '@/utils/colors'
 import { handleFetchErrors } from '@/utils/handleFetchErrors'
 import * as TablerIcons from '@tabler/icons-vue'
 import { IconX } from '@tabler/icons-vue'
+import notify from '@/utils/notifications'
 import { computed, ref } from 'vue'
 const {
   createProject,
@@ -270,6 +278,7 @@ const {
   projects,
   setCurrentProject,
   updateProject,
+  deleteProject,
 } = useProject()
 
 const getProjectIcon = (iconName: string) => {
@@ -445,12 +454,29 @@ const editProject = async () => {
     })
     .finally(() => {
       isLoadingEditProject.value = false
-      showEditProjectModal.value = false
-      selectedProject.value = null
-      editProjectName.value = ''
-      editProjectColor.value = PROJECT_COLORS.AZUL
-      editProjectIcon.value = ''
+      resetModal()
     })
 }
 
+const handleDeleteProject = async () => {
+  deleteProject(selectedProject.value?.id || '')
+    .then(() => {
+      notify.success('Proyecto eliminado correctamente')
+      setCurrentProject(null)
+    })
+    .catch((error) => {
+      handleFetchErrors(error)
+    })
+    .finally(() => {
+      resetModal()
+    })
+}
+
+const resetModal = () => {
+  showEditProjectModal.value = false
+  selectedProject.value = null
+  editProjectName.value = ''
+  editProjectColor.value = PROJECT_COLORS.AZUL
+  editProjectIcon.value = ''
+}
 </script>

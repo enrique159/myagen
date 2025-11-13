@@ -39,6 +39,10 @@ export const useProject = () => {
     return projectStore.getProject(projectId)
   }
 
+  function deleteProject(projectId: string) {
+    return projectStore.deleteProject(projectId)
+  }
+
   return {
     projects,
     showProjectsDrawer,
@@ -50,6 +54,7 @@ export const useProject = () => {
     createProject,
     updateProject,
     getProject,
+    deleteProject,
   }
 }
   

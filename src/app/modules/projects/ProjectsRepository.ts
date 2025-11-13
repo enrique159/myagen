@@ -41,4 +41,13 @@ export const getProjects = async (): Promise<Response<Project[]>> => {
   return response
 }
 
+export const deleteProject = async (
+  projectId: string,
+): Promise<Response<Project>> => {
+  const url = Routes.deleteProject(env.apiBase, projectId)
+  const response = await http.delete<null, Project>(url)
+  return response
+}
+
+
 

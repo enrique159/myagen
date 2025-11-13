@@ -6,6 +6,7 @@ import {
   createProject as createProjectUseCase,
   updateProject as updateProjectUseCase,
   getProject as getProjectUseCase,
+  deleteProject as deleteProjectUseCase,
 } from '@/app/modules/projects/ProjectsRepository'
 
 export const useProjectStore = defineStore('project', () => {
@@ -71,6 +72,21 @@ export const useProjectStore = defineStore('project', () => {
     return action
   }
 
+  const deleteProject = async (projectId: string) => {
+    const action = await deleteProjectUseCase(projectId)
+      .then((response) => {
+        const index = projects.value.findIndex((project) => project.id === projectId)
+        if (index !== -1) {
+          projects.value.splice(index, 1)
+        }
+        return response
+      })
+      .catch((error) => {
+        throw error
+      })
+    return action
+  }
+
   return {
     projects,
     currentProject,
@@ -78,6 +94,7 @@ export const useProjectStore = defineStore('project', () => {
     createProject,
     updateProject,
     getProject,
+    deleteProject,
   }
 })
 

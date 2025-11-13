@@ -19,6 +19,8 @@ const updateProject = (baseUrl: string, projectId: string) =>
 const getProject = (baseUrl: string, projectId: string) =>
   `${finishSlash(baseUrl)}projects/${projectId}`
 const getProjects = (baseUrl: string) => `${finishSlash(baseUrl)}projects`
+const deleteProject = (baseUrl: string, projectId: string) =>
+  `${finishSlash(baseUrl)}projects/${projectId}`
 // ELEMENTS ROUTES
 const createElement = (baseUrl: string) => `${finishSlash(baseUrl)}elements`
 const updateElement = (baseUrl: string, elementId: string) =>
@@ -71,6 +73,7 @@ export default {
   updateProject,
   getProject,
   getProjects,
+  deleteProject,
   // ELEMENTS ROUTES
   createElement,
   updateElement,
